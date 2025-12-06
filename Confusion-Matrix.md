@@ -632,32 +632,301 @@ MCC = √(Informedness × Markedness)
 
 ---
 
-### Tier 6: Set-Theoretic Metrics
+### Tier 6: Set-Theoretic and Geometric Mean Metrics
 
-#### Jaccard Index (IoU)
+These metrics view classification as a set overlap problem or use geometric means to balance components.
+
+#### Jaccard Index (IoU, Threat Score, Critical Success Index)
+
+**Also known as:** Intersection over Union (IoU), Threat Score (TS), Critical Success Index (CSI)
 
 ```
-Jaccard = TP / (TP + FN + FP) = |Intersection| / |Union|
+Jaccard = TP / (TP + FN + FP) = |Predicted+ ∩ Actual+| / |Predicted+ ∪ Actual+|
 ```
 
-**Visual intuition:**
+**Visual intuition — Set Overlap:**
+
 ```
-Actual Positives:    ████████░░░░░░
-Predicted Positives: ░░░░████████░░
-                         ↑↑↑↑
-                      Intersection (TP)
-                     
-Union = ████████████░░  (TP + FN + FP)
+Imagine two circles: one for "things that ARE positive" and one for "things you CALLED positive"
 
-Jaccard = 4/12 in this case
+            Actual Positives          Predicted Positives
+           +----------------+        +----------------+
+           |                |        |                |
+           |     FN         |   TP   |       FP       |
+           |   (missed)     |overlap |  (false alarm) |
+           |                |        |                |
+           +----------------+        +----------------+
+                       \      /
+                        \    /
+                         \  /
+                    Intersection = TP
+                    Union = TP + FN + FP
+                    
+Jaccard = Intersection / Union = TP / (TP + FN + FP)
 ```
 
-**Why ignore TN?** In many applications (object detection, segmentation), negatives are abundant and uninteresting. You care about overlap of positive regions.
+**Why ignore TN?** In many applications (object detection, image segmentation, rare event detection), negatives are abundant and uninteresting. You care about how well your "positive detections" overlap with "actual positives."
 
-**Relation to F1:**
+**Domain-specific names:**
+- **IoU (Intersection over Union):** Computer vision, object detection
+- **Threat Score / Critical Success Index:** Meteorology (e.g., predicting severe weather)
+- **Jaccard Index:** Clustering, ecology, general ML
+
+**Relationship to F1:**
 ```
 Jaccard = F1 / (2 - F1)
-F1 = 2 × Jaccard / (1 + Jaccard)
+F1 = 2 * Jaccard / (1 + Jaccard)
+
+Example: F1 = 0.8
+Jaccard = 0.8 / (2 - 0.8) = 0.8 / 1.2 = 0.667
+
+The F1 is always >= Jaccard for the same confusion matrix.
+F1 uses harmonic mean; Jaccard is a ratio.
+```
+
+**When to use Jaccard over F1:**
+- Object detection (standard metric is mAP based on IoU thresholds)
+- When you want a pure "overlap" interpretation
+- When comparing to clustering metrics (Jaccard is standard there)
+
+---
+
+#### Fowlkes-Mallows Index (FM)
+
+```
+FM = √(PPV × TPR) = √(Precision × Recall)
+```
+
+**What it is:** The geometric mean of Precision and Recall.
+
+**Intuition — Why geometric mean?**
+
+The three Pythagorean means handle the Precision-Recall tradeoff differently:
+
+```
+Given Precision = 0.9, Recall = 0.1 (highly imbalanced performance):
+
+Arithmetic mean: (0.9 + 0.1) / 2 = 0.50
+  → Hides the problem, looks acceptable
+
+Geometric mean (FM): √(0.9 × 0.1) = √0.09 = 0.30
+  → Reveals imbalance, but not as harsh as F1
+
+Harmonic mean (F1): 2×0.9×0.1 / (0.9+0.1) = 0.18
+  → Harshest penalty, dominated by smaller value
+
+Given Precision = 0.8, Recall = 0.8 (balanced performance):
+
+Arithmetic: 0.80
+Geometric (FM): 0.80
+Harmonic (F1): 0.80
+  → All three agree when values are equal!
+```
+
+**Visual comparison of the three means:**
+
+```
+        1.0 |                              
+            |  Arithmetic ---___           
+            |              ----____        
+        0.5 |  Geometric ------_____       
+            |                  -----____   
+            |  Harmonic (F1) -------_____  
+        0.0 +----------------------------> Imbalance
+            Balanced                 Extreme
+            (P=R)                   (P>>R or R>>P)
+
+As imbalance increases:
+- Arithmetic stays high (hides problem)
+- Geometric drops moderately  
+- Harmonic drops fastest (most sensitive to imbalance)
+```
+
+**Mathematical property:**
+```
+For any two positive numbers a and b:
+  Harmonic ≤ Geometric ≤ Arithmetic
+
+  2ab/(a+b) ≤ √(ab) ≤ (a+b)/2
+
+Equality holds only when a = b
+```
+
+**When to use FM over F1:**
+- When you want moderate penalty for imbalance (F1 may be too harsh)
+- Clustering evaluation (FM Index is standard for comparing clusterings)
+- When geometric mean has domain-specific meaning
+
+**Origin:** Developed by Edward Fowlkes and Colin Mallows (1983) for comparing hierarchical clusterings.
+
+---
+
+#### MCC Deep Dive: Why It's the "Gold Standard"
+
+```
+MCC = (TP × TN - FP × FN) / √[(TP+FP)(TP+FN)(TN+FP)(TN+FN)]
+```
+
+**Alternative formulation (from your reference):**
+```
+MCC = √(TPR × TNR × PPV × NPV) - √(FNR × FPR × FOR × FDR)
+```
+
+**Let's unpack this alternative formula:**
+
+```
+First term:  √(TPR × TNR × PPV × NPV)
+             = √(good rates multiplied together)
+             = Geometric mean of "all the ways you're right"
+
+Second term: √(FNR × FPR × FOR × FDR)  
+             = √(error rates multiplied together)
+             = Geometric mean of "all the ways you're wrong"
+
+MCC = (Geometric mean of correct rates) - (Geometric mean of error rates)
+```
+
+**This reveals MCC's elegance:** It balances ALL four quadrants of the confusion matrix by taking the geometric mean of "good" metrics and subtracting the geometric mean of "bad" metrics.
+
+**Why MCC is considered the best single metric:**
+
+```
++------------------------------------------------------------------+
+| PROPERTY                  | MCC  | F1   | Accuracy | Balanced   |
+|                           |      |      |          | Accuracy   |
++------------------------------------------------------------------+
+| Uses all 4 cells (TN too) | Yes  | No   | Yes      | No         |
++------------------------------------------------------------------+
+| Symmetric (pos/neg equal) | Yes  | No   | Yes      | Yes        |
++------------------------------------------------------------------+
+| Robust to class imbalance | Yes  | Mod. | No       | Yes        |
++------------------------------------------------------------------+
+| Range includes negative   | Yes  | No   | No       | No         |
+| (detects inverse pred.)   |[-1,1]| [0,1]| [0,1]    | [0,0.5,1]  |
++------------------------------------------------------------------+
+| Correlation interpretation| Yes  | No   | No       | No         |
++------------------------------------------------------------------+
+```
+
+**The correlation interpretation:**
+
+MCC is literally the Pearson correlation coefficient between the actual and predicted binary vectors:
+
+```python
+import numpy as np
+from sklearn.metrics import matthews_corrcoef
+
+y_true = np.array([1, 1, 1, 0, 0, 0, 1, 0])
+y_pred = np.array([1, 1, 0, 0, 0, 1, 1, 0])
+
+# MCC via sklearn
+mcc = matthews_corrcoef(y_true, y_pred)
+print(f"MCC: {mcc:.4f}")
+
+# Pearson correlation (same thing!)
+pearson = np.corrcoef(y_true, y_pred)[0, 1]
+print(f"Pearson r: {pearson:.4f}")
+
+# They're identical!
+```
+
+**What MCC values mean:**
+
+```
+MCC = +1.0: Perfect prediction
+            Every prediction matches reality exactly
+
+MCC = 0.0:  Random prediction (no better than chance)
+            Your predictions are uncorrelated with reality
+            Could also mean: predicting all one class on balanced data
+
+MCC = -1.0: Perfect inverse prediction
+            Every prediction is wrong
+            (Just flip your predictions and you'd be perfect!)
+
+Rough interpretation guide:
+  0.7 - 1.0: Strong positive correlation (good model)
+  0.4 - 0.7: Moderate correlation (decent model)  
+  0.2 - 0.4: Weak correlation (poor model)
+  0.0 - 0.2: Negligible (near random)
+  < 0:       Inverse correlation (model is anti-predictive)
+```
+
+**MCC edge cases and gotchas:**
+
+```
+Edge Case 1: All predictions are one class
+  y_true = [1, 1, 0, 0]
+  y_pred = [1, 1, 1, 1]  # Predict all positive
+  
+  Confusion matrix: TP=2, FP=2, TN=0, FN=0
+  
+  MCC denominator = √[(2+2)(2+0)(0+2)(0+0)] = √[4×2×2×0] = 0
+  MCC is UNDEFINED (0/0), typically reported as 0
+
+Edge Case 2: Perfect accuracy on imbalanced data
+  y_true = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]  # 10% positive
+  y_pred = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]  # Predict all negative
+  
+  Accuracy = 90% (looks great!)
+  MCC = undefined or 0 (reveals the problem)
+```
+
+---
+
+#### Comparing FM, F1, and Jaccard
+
+All three combine Precision and Recall, but differently:
+
+```
+Given: Precision (PPV) = P, Recall (TPR) = R
+
+F1 Score:      F1 = 2PR / (P + R)           Harmonic mean
+Fowlkes-Mallows: FM = √(P × R)              Geometric mean  
+Jaccard:       J = PR / (P + R - PR)        Derived from set overlap
+
+Relationship:
+  J = F1 / (2 - F1)
+  FM = √(P × R)
+  
+  For same P and R: J ≤ FM ≤ F1 (when P,R > 0.5)
+                    Actually depends on values...
+```
+
+**Worked example:**
+
+```
+Confusion matrix:
+  TP = 80, FP = 20, FN = 10, TN = 890
+  
+Precision = 80/100 = 0.80
+Recall = 80/90 = 0.889
+
+F1 = 2(0.80)(0.889) / (0.80 + 0.889) = 1.422 / 1.689 = 0.842
+FM = √(0.80 × 0.889) = √0.711 = 0.843
+Jaccard = 80 / (80 + 10 + 20) = 80/110 = 0.727
+
+Note: F1 ≈ FM here because P and R are close.
+      Jaccard is always lower (stricter overlap criterion).
+```
+
+**Decision guide:**
+
+```
+Use F1 when:
+  - Standard ML benchmarking
+  - You want harsh penalty for imbalanced P/R
+  - Interpretability ("average of precision and recall" is intuitive)
+
+Use Fowlkes-Mallows when:
+  - Comparing clusterings
+  - You want moderate penalty for imbalance
+  - Geometric mean has domain meaning
+
+Use Jaccard/IoU when:
+  - Object detection, segmentation
+  - True overlap/intersection interpretation needed
+  - Comparing to other set-based metrics
 ```
 
 ---
@@ -695,18 +964,18 @@ Same test performance, but PPV collapses in low-prevalence!
 │               PREVALENCE SENSITIVITY                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT           │
-│  (Intrinsic test properties)     (Depends on population)        │
+│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT          │
+│  (Intrinsic test properties)     (Depends on population)       │
 │                                                                 │
-│  • TPR (Sensitivity)             • PPV (Precision)              │
-│  • TNR (Specificity)             • NPV                          │
-│  • FPR                           • Accuracy                     │
-│  • FNR                           • F1 Score (moderately)        │
-│  • LR+                           • FDR                          │
-│  • LR−                           • FOR                          │
-│  • DOR                           • Markedness                   │
-│  • Informedness (Youden's J)                                    │
-│  • MCC                                                          │
+│  • TPR (Sensitivity)             • PPV (Precision)             │
+│  • TNR (Specificity)             • NPV                         │
+│  • FPR                           • Accuracy                    │
+│  • FNR                           • F1 Score (moderately)       │
+│  • LR+                           • FDR                         │
+│  • LR−                           • FOR                         │
+│  • DOR                           • Markedness                  │
+│  • Informedness (Youden's J)                                   │
+│  • MCC                                                         │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -835,7 +1104,7 @@ Area Under ROC (AUC-ROC):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ DOMAIN                    PRIMARY METRICS         RATIONALE             │
+│ DOMAIN                    PRIMARY METRICS         RATIONALE            │
 ├─────────────────────────────────────────────────────────────────────────┤
 │ Medical Screening         Sensitivity (TPR)       Can't miss disease    │
 │                          NPV, LR−                 Negative = reassurance│
@@ -843,28 +1112,28 @@ Area Under ROC (AUC-ROC):
 │ Medical Diagnosis         Specificity (TNR)       Confirm before        │
 │                          PPV, LR+                 treatment             │
 │                                                                         │
-│ Fraud Detection          Precision (PPV)         Review capacity        │
-│                          Recall (TPR)            limited                │
-│                          F1 or F2                                       │
+│ Fraud Detection          Precision (PPV)         Review capacity       │
+│                          Recall (TPR)            limited               │
+│                          F1 or F2                                      │
 │                                                                         │
-│ Spam Filtering           Precision               FP = lost email!       │
-│                          F0.5                                           │
+│ Spam Filtering           Precision               FP = lost email!      │
+│                          F0.5                                          │
 │                                                                         │
-│ Credit Risk              Depends on bank's       Usually Precision      │
-│                          loss function           (avoid bad loans)      │
+│ Credit Risk              Depends on bank's       Usually Precision     │
+│                          loss function           (avoid bad loans)     │
 │                                                                         │
-│ Information Retrieval    Precision@K             Top results matter     │
-│                          MAP, NDCG                                      │
+│ Information Retrieval    Precision@K             Top results matter    │
+│                          MAP, NDCG                                     │
 │                                                                         │
-│ Object Detection         IoU/Jaccard             Spatial overlap        │
-│                          mAP                                            │
+│ Object Detection         IoU/Jaccard             Spatial overlap       │
+│                          mAP                                           │
 │                                                                         │
-│ Academic Research        MCC                     Most rigorous          │
-│ (general ML)             AUC-ROC, AUC-PR         single metrics         │
+│ Academic Research        MCC                     Most rigorous         │
+│ (general ML)             AUC-ROC, AUC-PR         single metrics        │
 │                                                                         │
-│ Trading Signals          Precision               False signals costly   │
-│                          MCC                     Want true correlation  │
-│                          Informedness            Better than random?    │
+│ Trading Signals          Precision               False signals costly  │
+│                          MCC                     Want true correlation │
+│                          Informedness            Better than random?   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -878,14 +1147,14 @@ Area Under ROC (AUC-ROC):
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ METRIC          ZERO WHEN                    HANDLING                   │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ TPR             No actual positives (P=0)    Undefined (no positives)   │
-│ TNR             No actual negatives (N=0)    Undefined (no negatives)   │
-│ PPV             No predicted positives       Undefined or 0 by conv.    │
-│ NPV             No predicted negatives       Undefined or 1 by conv.    │
-│ F1              PPV or TPR is 0              0                          │
-│ MCC             Any row/col sums to 0        Undefined (0 by conv.)     │
-│ LR+             FPR = 0                      Infinity (perfect spec.)   │
-│ LR−             TNR = 0                      Infinity                   │
+│ TPR             No actual positives (P=0)    Undefined (no positives)  │
+│ TNR             No actual negatives (N=0)    Undefined (no negatives)  │
+│ PPV             No predicted positives       Undefined or 0 by conv.   │
+│ NPV             No predicted negatives       Undefined or 1 by conv.   │
+│ F1              PPV or TPR is 0              0                         │
+│ MCC             Any row/col sums to 0        Undefined (0 by conv.)    │
+│ LR+             FPR = 0                      Infinity (perfect spec.)  │
+│ LR−             TNR = 0                      Infinity                  │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -971,17 +1240,17 @@ Off-diagonal = errors (shows confusion patterns)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ STRATEGY        FORMULA                    USE WHEN                     │
+│ STRATEGY        FORMULA                    USE WHEN                    │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                       │
-│                 Treats all classes equally    Class balance matters     │
-│                                              equally                    │
-│                                                                         │
-│ Micro-average   Compute from aggregated      Sample-level               │
-│                 TP, FP, FN across classes    performance matters        │
-│                                                                         │
-│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should       │
-│                                              matter more                │
+│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                      │
+│                 Treats all classes equally    Class balance matters    │
+│                                              equally                   │
+│                                                                        │
+│ Micro-average   Compute from aggregated      Sample-level             │
+│                 TP, FP, FN across classes    performance matters      │
+│                                                                        │
+│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should     │
+│                                              matter more               │
 └─────────────────────────────────────────────────────────────────────────┘
 
 Example:
@@ -1098,15 +1367,15 @@ Jaccard = 45/(45+5+50) = 45/100 = 0.450 = 45%
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ METRIC           VALUE    ASSESSMENT    IMPLICATION                     │
+│ METRIC           VALUE    ASSESSMENT    IMPLICATION                    │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Sensitivity      90%      Excellent     Missing only 10% of pumps       │
-│ Specificity      94.7%    Excellent     Low false alarm rate            │
-│ Precision        47.4%    Moderate      Many alerts are noise           │
-│ F1               62.1%    Good          Reasonable balance              │
-│ MCC              0.63     Good          Strong correlation              │
-│ LR+              17.1     Strong        Positive test is meaningful     │
-│ Accuracy         94.5%    Misleading!   Inflated by class imbalance     │
+│ Sensitivity      90%      Excellent     Missing only 10% of pumps      │
+│ Specificity      94.7%    Excellent     Low false alarm rate           │
+│ Precision        47.4%    Moderate      Many alerts are noise          │
+│ F1               62.1%    Good          Reasonable balance             │
+│ MCC              0.63     Good          Strong correlation             │
+│ LR+              17.1     Strong        Positive test is meaningful    │
+│ Accuracy         94.5%    Misleading!   Inflated by class imbalance    │
 └─────────────────────────────────────────────────────────────────────────┘
 
 KEY INSIGHT: Despite excellent sensitivity/specificity, precision is only 47%
