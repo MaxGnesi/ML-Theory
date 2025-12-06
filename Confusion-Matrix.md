@@ -1,6 +1,229 @@
 # Mastering Confusion Matrix Metrics: A Deep Intuition Guide
 
-## Part 1: The Mental Model
+## Part 0: What Do "Positive" and "Negative" Actually Mean?
+
+### The Labeling Convention
+
+In binary classification, one class is designated "positive" (1) and the other "negative" (0). This isn't about good vs bad — it's about what you're trying to DETECT.
+
+```
+POSITIVE = The condition/event/class you are trying to DETECT or FLAG
+NEGATIVE = The default/baseline/absence state
+```
+
+### Standard Practice: The "Rare or Important Event" Rule
+
+**The positive class is almost always:**
+- The rarer class (minority class)
+- The event you're screening FOR
+- The condition whose presence matters
+- The thing that triggers ACTION
+
+**Examples:**
+
+```
++------------------+------------------+------------------+---------------------+
+| DOMAIN           | POSITIVE (1)     | NEGATIVE (0)     | WHY THIS WAY        |
++------------------+------------------+------------------+---------------------+
+| Medical          | Has disease      | Healthy          | Detecting disease   |
+| Fraud            | Fraudulent       | Legitimate       | Detecting fraud     |
+| Spam             | Spam             | Not spam (ham)   | Detecting spam      |
+| Churn            | Will churn       | Will stay        | Detecting churn     |
+| Default          | Will default     | Will repay       | Detecting default   |
+| Intrusion        | Attack           | Normal traffic   | Detecting attacks   |
+| Manufacturing    | Defective        | Good product     | Detecting defects   |
+| Trading signal   | Signal present   | No signal        | Detecting signals   |
+| Pump detection   | Pump scheme      | Normal trading   | Detecting pumps     |
++------------------+------------------+------------------+---------------------+
+```
+
+### Why Does the Convention Matter?
+
+**All the "positive" metrics orient around the positive class:**
+
+- **True Positive Rate (Recall):** How well you catch the thing you're looking for
+- **Positive Predictive Value (Precision):** How accurate your detections are
+- **False Positive:** You cried wolf (said positive when it wasn't)
+- **False Negative:** You missed something real (was positive, you said negative)
+
+If you flip the labels, all your metrics flip meaning:
+- What was "recall" becomes the recall of the OTHER class
+- Your F1 score changes
+- FP and FN swap
+
+**Consistency is critical:** Once you choose, document it and stick with it.
+
+### The Asymmetry of Errors (Type I and Type II)
+
+The reason we care about labeling: **FP and FN usually have different costs.**
+
+```
+                     Reality
+                  Neg    |    Pos
+              +---------+---------+
+   Predicted  |         |         |
+      Neg     |   TN    |   FN    |  <-- FN: "Missed detection" = TYPE II ERROR
+              |  (ok)   | (BAD?)  |      You missed something real
+              +---------+---------+      Also called: Beta error, Miss
+      Pos     |   FP    |   TP    |  <-- FP: "False alarm" = TYPE I ERROR
+              | (BAD?)  |  (ok)   |      You flagged something innocent
+              +---------+---------+      Also called: Alpha error, False alarm
+
+The question: Which is worse for YOUR problem?
+```
+
+**Type I vs Type II Errors — The Statistical Testing Origin:**
+
+```
++-------------+----------------------------+----------------------------+
+|             | TYPE I ERROR (alpha)       | TYPE II ERROR (beta)       |
++-------------+----------------------------+----------------------------+
+| What        | False Positive (FP)        | False Negative (FN)        |
++-------------+----------------------------+----------------------------+
+| In stats    | Rejecting true null        | Failing to reject false    |
+|             | hypothesis                 | null hypothesis            |
++-------------+----------------------------+----------------------------+
+| Plain       | "Seeing something that     | "Missing something that    |
+| English     | isn't there"               | IS there"                  |
++-------------+----------------------------+----------------------------+
+| Metaphor    | Convicting an innocent     | Letting a guilty person    |
+|             | person                     | go free                    |
++-------------+----------------------------+----------------------------+
+| Another     | Crying wolf                | Ignoring a real wolf       |
+| metaphor    |                            |                            |
++-------------+----------------------------+----------------------------+
+| Rate        | FPR = FP/N = alpha         | FNR = FN/P = beta          |
++-------------+----------------------------+----------------------------+
+| Complement  | Specificity = 1 - alpha    | Sensitivity = 1 - beta     |
+|             | (TNR)                      | (TPR, also called Power)   |
++-------------+----------------------------+----------------------------+
+| Controlled  | Set significance level     | Increase sample size,      |
+| by          | (e.g., alpha = 0.05)       | effect size, or alpha      |
++-------------+----------------------------+----------------------------+
+```
+
+**Memory trick:**
+- Type **I** = **I** cried wolf (false alarm, FP)
+- Type II = I **missed** it (missed detection, FN) — "II" looks like "11" or "||" = the thing slipped through
+
+**The tradeoff:** Reducing Type I errors (being more conservative) typically increases Type II errors (missing real effects), and vice versa. You cannot minimize both simultaneously — this is the fundamental precision-recall tradeoff.
+
+**Cost Asymmetry Examples:**
+
+```
+DOMAIN              FN COST                    FP COST                    WORSE?
+----------------------------------------------------------------------------------
+Cancer screening    Patient dies               Unnecessary biopsy         FN
+Spam filter         Miss spam (minor)          Delete real email          FP
+Fraud detection     Lose money to fraud        Block legitimate tx        Depends
+Nuclear alarm       Miss attack (catastrophe)  False alarm (costly)       FN
+Criminal justice    Guilty goes free           Innocent imprisoned        FP (legal)
+Trading signal      Miss profitable trade      Bad trade / loss           Depends
+```
+
+### The Threshold-Label Interaction
+
+Your model outputs a probability. The threshold determines predictions:
+
+```
+P(positive) >= threshold  -->  Predict POSITIVE
+P(positive) <  threshold  -->  Predict NEGATIVE
+```
+
+**Critical insight:** The threshold lets you trade off FP vs FN:
+
+```
+Lower threshold (e.g., 0.3):
+  - More things classified as positive
+  - Higher TPR (catch more real positives)
+  - Higher FPR (more false alarms)
+  - Fewer FN, more FP
+  - Use when: Missing positives is costly
+
+Higher threshold (e.g., 0.7):
+  - Fewer things classified as positive  
+  - Lower TPR (miss more real positives)
+  - Lower FPR (fewer false alarms)
+  - More FN, fewer FP
+  - Use when: False alarms are costly
+```
+
+### Multi-Class: The One-vs-Rest Framing
+
+When you have K > 2 classes, confusion matrix metrics are computed by:
+
+1. **Pick one class as "positive"**
+2. **Lump all other classes as "negative"**
+3. **Compute binary metrics**
+4. **Repeat for each class, then average**
+
+```
+Example: 3-class classification (Cat, Dog, Bird)
+
+For "Cat" metrics:
+  Positive = Cat
+  Negative = {Dog, Bird}
+  
+For "Dog" metrics:
+  Positive = Dog
+  Negative = {Cat, Bird}
+  
+... and so on
+```
+
+### Best Practices Checklist
+
+```
+[x] ALWAYS document which class is positive in your code/reports
+[x] Follow convention: positive = the thing you're detecting/the rare class
+[x] Think about cost asymmetry BEFORE choosing metrics
+[x] If FN is costly --> optimize for Recall (TPR), use F2
+[x] If FP is costly --> optimize for Precision (PPV), use F0.5  
+[x] If costs are equal or unknown --> use F1 or MCC
+[x] NEVER compare metrics across studies with different label conventions
+[x] When reading papers, verify their positive class definition
+[x] In imbalanced data, positive should be the minority class
+[x] Choose threshold based on your cost function, not arbitrary 0.5
+```
+
+### Common Mistakes
+
+**Mistake 1: Arbitrary labeling**
+```
+BAD:  "Let's call healthy=1 and sick=0"
+GOOD: "Positive=disease (what we're detecting), negative=healthy"
+```
+
+**Mistake 2: Forgetting to check label encoding**
+```
+# Pandas/sklearn gotcha:
+# LabelEncoder assigns 0 to first alphabetically!
+
+classes = ['Fraud', 'Legitimate']
+# LabelEncoder: Fraud=0, Legitimate=1  <-- BACKWARDS!
+
+# Always verify:
+print(dict(zip(le.classes_, le.transform(le.classes_))))
+```
+
+**Mistake 3: Using default threshold blindly**
+```
+BAD:  y_pred = (model.predict_proba(X)[:, 1] >= 0.5).astype(int)
+GOOD: # Choose threshold based on cost analysis or PR curve
+      threshold = find_optimal_threshold(y_true, y_prob, cost_fn)
+      y_pred = (y_prob >= threshold).astype(int)
+```
+
+**Mistake 4: Comparing metrics across different conventions**
+```
+Paper A: "Our fraud detection has 95% recall"  (Positive = Fraud)
+Paper B: "Our system has 99% recall"           (Positive = Legitimate)
+
+These are NOT comparable! Paper B's 99% recall for "legitimate" 
+is actually TNR from fraud-detection perspective.
+```
+
+---
 
 ### The Fundamental Question Framework
 
@@ -404,18 +627,18 @@ Same test performance, but PPV collapses in low-prevalence!
 │               PREVALENCE SENSITIVITY                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT           │
-│  (Intrinsic test properties)     (Depends on population)        │
+│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT          │
+│  (Intrinsic test properties)     (Depends on population)       │
 │                                                                 │
-│  • TPR (Sensitivity)             • PPV (Precision)              │
-│  • TNR (Specificity)             • NPV                          │
-│  • FPR                           • Accuracy                     │
-│  • FNR                           • F1 Score (moderately)        │
-│  • LR+                           • FDR                          │
-│  • LR−                           • FOR                          │
-│  • DOR                           • Markedness                   │
-│  • Informedness (Youden's J)                                    │
-│  • MCC                                                          │
+│  • TPR (Sensitivity)             • PPV (Precision)             │
+│  • TNR (Specificity)             • NPV                         │
+│  • FPR                           • Accuracy                    │
+│  • FNR                           • F1 Score (moderately)       │
+│  • LR+                           • FDR                         │
+│  • LR−                           • FOR                         │
+│  • DOR                           • Markedness                  │
+│  • Informedness (Youden's J)                                   │
+│  • MCC                                                         │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -544,7 +767,7 @@ Area Under ROC (AUC-ROC):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ DOMAIN                    PRIMARY METRICS         RATIONALE             │
+│ DOMAIN                    PRIMARY METRICS         RATIONALE            │
 ├─────────────────────────────────────────────────────────────────────────┤
 │ Medical Screening         Sensitivity (TPR)       Can't miss disease    │
 │                          NPV, LR−                 Negative = reassurance│
@@ -552,28 +775,28 @@ Area Under ROC (AUC-ROC):
 │ Medical Diagnosis         Specificity (TNR)       Confirm before        │
 │                          PPV, LR+                 treatment             │
 │                                                                         │
-│ Fraud Detection          Precision (PPV)         Review capacity        │
-│                          Recall (TPR)            limited                │
-│                          F1 or F2                                       │
+│ Fraud Detection          Precision (PPV)         Review capacity       │
+│                          Recall (TPR)            limited               │
+│                          F1 or F2                                      │
 │                                                                         │
-│ Spam Filtering           Precision               FP = lost email!       │
-│                          F0.5                                           │
+│ Spam Filtering           Precision               FP = lost email!      │
+│                          F0.5                                          │
 │                                                                         │
-│ Credit Risk              Depends on bank's       Usually Precision      │
-│                          loss function           (avoid bad loans)      │
+│ Credit Risk              Depends on bank's       Usually Precision     │
+│                          loss function           (avoid bad loans)     │
 │                                                                         │
-│ Information Retrieval    Precision@K             Top results matter     │
-│                          MAP, NDCG                                      │
+│ Information Retrieval    Precision@K             Top results matter    │
+│                          MAP, NDCG                                     │
 │                                                                         │
-│ Object Detection         IoU/Jaccard             Spatial overlap        │
-│                          mAP                                            │
+│ Object Detection         IoU/Jaccard             Spatial overlap       │
+│                          mAP                                           │
 │                                                                         │
-│ Academic Research        MCC                     Most rigorous          │
-│ (general ML)             AUC-ROC, AUC-PR         single metrics         │
+│ Academic Research        MCC                     Most rigorous         │
+│ (general ML)             AUC-ROC, AUC-PR         single metrics        │
 │                                                                         │
-│ Trading Signals          Precision               False signals costly   │
-│                          MCC                     Want true correlation  │
-│                          Informedness            Better than random?    │
+│ Trading Signals          Precision               False signals costly  │
+│                          MCC                     Want true correlation │
+│                          Informedness            Better than random?   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -587,14 +810,14 @@ Area Under ROC (AUC-ROC):
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ METRIC          ZERO WHEN                    HANDLING                   │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ TPR             No actual positives (P=0)    Undefined (no positives)   │
-│ TNR             No actual negatives (N=0)    Undefined (no negatives)   │
-│ PPV             No predicted positives       Undefined or 0 by conv.    │
-│ NPV             No predicted negatives       Undefined or 1 by conv.    │
-│ F1              PPV or TPR is 0              0                          │
-│ MCC             Any row/col sums to 0        Undefined (0 by conv.)     │
-│ LR+             FPR = 0                      Infinity (perfect spec.)   │
-│ LR−             TNR = 0                      Infinity                   │
+│ TPR             No actual positives (P=0)    Undefined (no positives)  │
+│ TNR             No actual negatives (N=0)    Undefined (no negatives)  │
+│ PPV             No predicted positives       Undefined or 0 by conv.   │
+│ NPV             No predicted negatives       Undefined or 1 by conv.   │
+│ F1              PPV or TPR is 0              0                         │
+│ MCC             Any row/col sums to 0        Undefined (0 by conv.)    │
+│ LR+             FPR = 0                      Infinity (perfect spec.)  │
+│ LR−             TNR = 0                      Infinity                  │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -680,17 +903,17 @@ Off-diagonal = errors (shows confusion patterns)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ STRATEGY        FORMULA                    USE WHEN                     │
+│ STRATEGY        FORMULA                    USE WHEN                    │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                       │
-│                 Treats all classes equally    Class balance matters     │
-│                                              equally                    │
-│                                                                         │
-│ Micro-average   Compute from aggregated      Sample-level               │
-│                 TP, FP, FN across classes    performance matters        │
-│                                                                         │
-│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should       │
-│                                              matter more                │
+│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                      │
+│                 Treats all classes equally    Class balance matters    │
+│                                              equally                   │
+│                                                                        │
+│ Micro-average   Compute from aggregated      Sample-level             │
+│                 TP, FP, FN across classes    performance matters      │
+│                                                                        │
+│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should     │
+│                                              matter more               │
 └─────────────────────────────────────────────────────────────────────────┘
 
 Example:
@@ -807,15 +1030,15 @@ Jaccard = 45/(45+5+50) = 45/100 = 0.450 = 45%
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ METRIC           VALUE    ASSESSMENT    IMPLICATION                     │
+│ METRIC           VALUE    ASSESSMENT    IMPLICATION                    │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Sensitivity      90%      Excellent     Missing only 10% of pumps       │
-│ Specificity      94.7%    Excellent     Low false alarm rate            │
-│ Precision        47.4%    Moderate      Many alerts are noise           │
-│ F1               62.1%    Good          Reasonable balance              │
-│ MCC              0.63     Good          Strong correlation              │
-│ LR+              17.1     Strong        Positive test is meaningful     │
-│ Accuracy         94.5%    Misleading!   Inflated by class imbalance     │
+│ Sensitivity      90%      Excellent     Missing only 10% of pumps      │
+│ Specificity      94.7%    Excellent     Low false alarm rate           │
+│ Precision        47.4%    Moderate      Many alerts are noise          │
+│ F1               62.1%    Good          Reasonable balance             │
+│ MCC              0.63     Good          Strong correlation             │
+│ LR+              17.1     Strong        Positive test is meaningful    │
+│ Accuracy         94.5%    Misleading!   Inflated by class imbalance    │
 └─────────────────────────────────────────────────────────────────────────┘
 
 KEY INSIGHT: Despite excellent sensitivity/specificity, precision is only 47%
