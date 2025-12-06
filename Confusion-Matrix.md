@@ -58,16 +58,16 @@ If you flip the labels, all your metrics flip meaning:
 The reason we care about labeling: **FP and FN usually have different costs.**
 
 ```
-                     Reality
+                     Predicted
                   Neg    |    Pos
               +---------+---------+
-   Predicted  |         |         |
-      Neg     |   TN    |   FN    |  <-- FN: "Missed detection" = TYPE II ERROR
-              |  (ok)   | (BAD?)  |      You missed something real
-              +---------+---------+      Also called: Beta error, Miss
-      Pos     |   FP    |   TP    |  <-- FP: "False alarm" = TYPE I ERROR
-              | (BAD?)  |  (ok)   |      You flagged something innocent
+   Actual     |         |         |
+      Neg     |   TN    |   FP    |  <-- FP: "False alarm" = TYPE I ERROR
+              |  (ok)   | (BAD?)  |      You flagged something innocent
               +---------+---------+      Also called: Alpha error, False alarm
+      Pos     |   FN    |   TP    |  <-- FN: "Missed detection" = TYPE II ERROR
+              | (BAD?)  |  (ok)   |      You missed something real
+              +---------+---------+      Also called: Beta error, Miss
 
 The question: Which is worse for YOUR problem?
 ```
@@ -121,7 +121,72 @@ Criminal justice    Guilty goes free           Innocent imprisoned        FP (le
 Trading signal      Miss profitable trade      Bad trade / loss           Depends
 ```
 
-### The Threshold-Label Interaction
+### The Row/Column Convention Problem
+
+**WARNING: There is NO universal standard.** Different sources use opposite conventions:
+
+```
+SKLEARN CONVENTION (and most Python libraries):
+- Rows = Actual/True labels
+- Columns = Predicted labels
+
+                  Predicted
+                  0    |    1
+             +--------+--------+
+  Actual  0  |   TN   |   FP   |
+             +--------+--------+
+          1  |   FN   |   TP   |
+             +--------+--------+
+
+sklearn output: [[TN, FP], [FN, TP]]
+tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+
+
+WIKIPEDIA CONVENTION (and some statistics textbooks):
+- Rows = Predicted labels
+- Columns = Actual/True labels
+
+                   Actual
+                  0    |    1
+             +--------+--------+
+Predicted 0  |   TN   |   FN   |
+             +--------+--------+
+          1  |   FP   |   TP   |
+             +--------+--------+
+
+This is the TRANSPOSE of sklearn!
+```
+
+**The sklearn docs explicitly warn:** *"Wikipedia and other references may use a different convention for axes"*
+
+**How to never get confused:**
+
+1. **Always check which convention your tool uses**
+2. **Label your axes explicitly when presenting results**
+3. **Verify with a simple test case:**
+
+```python
+from sklearn.metrics import confusion_matrix
+
+# Test case: 3 actual positives, predict 2 correctly, miss 1
+y_true = [1, 1, 1, 0, 0]  # 3 positives, 2 negatives
+y_pred = [1, 1, 0, 0, 0]  # Predict 2 pos (both correct), miss 1
+
+cm = confusion_matrix(y_true, y_pred)
+print(cm)
+# Output: [[2 0]    <- Row 0 (Actual=0): TN=2, FP=0
+#          [1 2]]   <- Row 1 (Actual=1): FN=1, TP=2
+
+# Verify: We had 3 actual positives, caught 2 (TP), missed 1 (FN)
+# This confirms sklearn uses Rows=Actual, Cols=Predicted
+```
+
+**Memory aid for sklearn:**
+- First argument is `y_true` (actual) → goes to rows
+- Second argument is `y_pred` (predicted) → goes to columns
+- "True before Pred" = "Rows before Columns"
+
+---
 
 Your model outputs a probability. The threshold determines predictions:
 
@@ -258,20 +323,23 @@ Every confusion matrix metric answers one of four fundamental questions:
 ### Visual: The Two Perspectives
 
 ```
-                         PREDICTIONS
-                    ┌─────────┬─────────┐
-                    │   -     │    +    │
-              ┌─────┼─────────┼─────────┤
-              │  -  │   TN    │   FP    │ ← TNR = TN/(TN+FP) "How well do I leave negatives alone?"
-   REALITY    ├─────┼─────────┼─────────┤
-              │  +  │   FN    │   TP    │ ← TPR = TP/(TP+FN) "How well do I catch positives?"
-              └─────┴─────────┴─────────┘
-                       ↑           ↑
+                         PREDICTED
+                    +---------+---------+
+                    |   -     |    +    |
+              +-----+---------+---------+
+              |  -  |   TN    |   FP    | <- TNR = TN/(TN+FP) "How well do I leave negatives alone?"
+   ACTUAL     +-----+---------+---------+
+              |  +  |   FN    |   TP    | <- TPR = TP/(TP+FN) "How well do I catch positives?"
+              +-----+---------+---------+
+                       ^           ^
                       NPV         PPV
                       "Of my      "Of my
                       neg calls,  pos calls,
                       how many    how many
                       correct?"   correct?"
+
+NOTE: This uses sklearn convention (Rows=Actual, Columns=Predicted)
+      Wikipedia uses the transpose!
 ```
 
 ---
@@ -1057,15 +1125,18 @@ PRACTICAL ACTION:
 ```
 +=========================================================================+
 |                    CONFUSION MATRIX QUICK REFERENCE                     |
+|                  (sklearn convention: Rows=Actual, Cols=Predicted)      |
 +=========================================================================+
 |                                                                         |
-|  +-------+-----+-----+        Row-based (Reality):                      |
+|  +-------+-----+-----+        Row-based (Actual/Reality):               |
 |  |       |Pred |Pred |        TPR = TP/P    "Catch rate"                |
 |  |       |  -  |  +  |        TNR = TN/N    "Leave-alone rate"          |
 |  +-------+-----+-----+                                                  |
-|  | Act - | TN  | FP  | <-TNR  Column-based (Predictions):               |
-|  +-------+-----+-----+        PPV = TP/(TP+FP)  "Alert accuracy"        |
-|  | Act + | FN  | TP  | <-TPR  NPV = TN/(TN+FN)  "Clear accuracy"        |
+|  |Actual | TN  | FP  | <-TNR  Column-based (Predictions):               |
+|  |   -   |     |     |        PPV = TP/(TP+FP)  "Alert accuracy"        |
+|  +-------+-----+-----+        NPV = TN/(TN+FN)  "Clear accuracy"        |
+|  |Actual | FN  | TP  | <-TPR                                            |
+|  |   +   |     |     |                                                  |
 |  +-------+-----+-----+                                                  |
 |             ^     ^          PREVALENCE-INDEPENDENT: TPR, TNR, LR+, LR- |
 |            NPV   PPV         PREVALENCE-DEPENDENT: PPV, NPV, Accuracy   |
@@ -1082,6 +1153,8 @@ PRACTICAL ACTION:
 |                                                                         |
 |  WHEN FN IS COSTLY -> Maximize TPR, use F2                              |
 |  WHEN FP IS COSTLY -> Maximize PPV/TNR, use F0.5                        |
+|                                                                         |
+|  sklearn: tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()     |
 |                                                                         |
 +=========================================================================+
 ```
