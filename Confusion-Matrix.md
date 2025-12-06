@@ -404,18 +404,18 @@ Same test performance, but PPV collapses in low-prevalence!
 │               PREVALENCE SENSITIVITY                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT          │
-│  (Intrinsic test properties)     (Depends on population)       │
+│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT           │
+│  (Intrinsic test properties)     (Depends on population)        │
 │                                                                 │
-│  • TPR (Sensitivity)             • PPV (Precision)             │
-│  • TNR (Specificity)             • NPV                         │
-│  • FPR                           • Accuracy                    │
-│  • FNR                           • F1 Score (moderately)       │
-│  • LR+                           • FDR                         │
-│  • LR−                           • FOR                         │
-│  • DOR                           • Markedness                  │
-│  • Informedness (Youden's J)                                   │
-│  • MCC                                                         │
+│  • TPR (Sensitivity)             • PPV (Precision)              │
+│  • TNR (Specificity)             • NPV                          │
+│  • FPR                           • Accuracy                     │
+│  • FNR                           • F1 Score (moderately)        │
+│  • LR+                           • FDR                          │
+│  • LR−                           • FOR                          │
+│  • DOR                           • Markedness                   │
+│  • Informedness (Youden's J)                                    │
+│  • MCC                                                          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -544,7 +544,7 @@ Area Under ROC (AUC-ROC):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ DOMAIN                    PRIMARY METRICS         RATIONALE            │
+│ DOMAIN                    PRIMARY METRICS         RATIONALE             │
 ├─────────────────────────────────────────────────────────────────────────┤
 │ Medical Screening         Sensitivity (TPR)       Can't miss disease    │
 │                          NPV, LR−                 Negative = reassurance│
@@ -552,28 +552,28 @@ Area Under ROC (AUC-ROC):
 │ Medical Diagnosis         Specificity (TNR)       Confirm before        │
 │                          PPV, LR+                 treatment             │
 │                                                                         │
-│ Fraud Detection          Precision (PPV)         Review capacity       │
-│                          Recall (TPR)            limited               │
-│                          F1 or F2                                      │
+│ Fraud Detection          Precision (PPV)         Review capacity        │
+│                          Recall (TPR)            limited                │
+│                          F1 or F2                                       │
 │                                                                         │
-│ Spam Filtering           Precision               FP = lost email!      │
-│                          F0.5                                          │
+│ Spam Filtering           Precision               FP = lost email!       │
+│                          F0.5                                           │
 │                                                                         │
-│ Credit Risk              Depends on bank's       Usually Precision     │
-│                          loss function           (avoid bad loans)     │
+│ Credit Risk              Depends on bank's       Usually Precision      │
+│                          loss function           (avoid bad loans)      │
 │                                                                         │
-│ Information Retrieval    Precision@K             Top results matter    │
-│                          MAP, NDCG                                     │
+│ Information Retrieval    Precision@K             Top results matter     │
+│                          MAP, NDCG                                      │
 │                                                                         │
-│ Object Detection         IoU/Jaccard             Spatial overlap       │
-│                          mAP                                           │
+│ Object Detection         IoU/Jaccard             Spatial overlap        │
+│                          mAP                                            │
 │                                                                         │
-│ Academic Research        MCC                     Most rigorous         │
-│ (general ML)             AUC-ROC, AUC-PR         single metrics        │
+│ Academic Research        MCC                     Most rigorous          │
+│ (general ML)             AUC-ROC, AUC-PR         single metrics         │
 │                                                                         │
-│ Trading Signals          Precision               False signals costly  │
-│                          MCC                     Want true correlation │
-│                          Informedness            Better than random?   │
+│ Trading Signals          Precision               False signals costly   │
+│                          MCC                     Want true correlation  │
+│                          Informedness            Better than random?    │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -587,14 +587,14 @@ Area Under ROC (AUC-ROC):
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ METRIC          ZERO WHEN                    HANDLING                   │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ TPR             No actual positives (P=0)    Undefined (no positives)  │
-│ TNR             No actual negatives (N=0)    Undefined (no negatives)  │
-│ PPV             No predicted positives       Undefined or 0 by conv.   │
-│ NPV             No predicted negatives       Undefined or 1 by conv.   │
-│ F1              PPV or TPR is 0              0                         │
-│ MCC             Any row/col sums to 0        Undefined (0 by conv.)    │
-│ LR+             FPR = 0                      Infinity (perfect spec.)  │
-│ LR−             TNR = 0                      Infinity                  │
+│ TPR             No actual positives (P=0)    Undefined (no positives)   │
+│ TNR             No actual negatives (N=0)    Undefined (no negatives)   │
+│ PPV             No predicted positives       Undefined or 0 by conv.    │
+│ NPV             No predicted negatives       Undefined or 1 by conv.    │
+│ F1              PPV or TPR is 0              0                          │
+│ MCC             Any row/col sums to 0        Undefined (0 by conv.)     │
+│ LR+             FPR = 0                      Infinity (perfect spec.)   │
+│ LR−             TNR = 0                      Infinity                   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -680,17 +680,17 @@ Off-diagonal = errors (shows confusion patterns)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ STRATEGY        FORMULA                    USE WHEN                    │
+│ STRATEGY        FORMULA                    USE WHEN                     │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                      │
-│                 Treats all classes equally    Class balance matters    │
-│                                              equally                   │
-│                                                                        │
-│ Micro-average   Compute from aggregated      Sample-level             │
-│                 TP, FP, FN across classes    performance matters      │
-│                                                                        │
-│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should     │
-│                                              matter more               │
+│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                       │
+│                 Treats all classes equally    Class balance matters     │
+│                                              equally                    │
+│                                                                         │
+│ Micro-average   Compute from aggregated      Sample-level               │
+│                 TP, FP, FN across classes    performance matters        │
+│                                                                         │
+│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should       │
+│                                              matter more                │
 └─────────────────────────────────────────────────────────────────────────┘
 
 Example:
@@ -807,15 +807,15 @@ Jaccard = 45/(45+5+50) = 45/100 = 0.450 = 45%
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ METRIC           VALUE    ASSESSMENT    IMPLICATION                    │
+│ METRIC           VALUE    ASSESSMENT    IMPLICATION                     │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Sensitivity      90%      Excellent     Missing only 10% of pumps      │
-│ Specificity      94.7%    Excellent     Low false alarm rate           │
-│ Precision        47.4%    Moderate      Many alerts are noise          │
-│ F1               62.1%    Good          Reasonable balance             │
-│ MCC              0.63     Good          Strong correlation             │
-│ LR+              17.1     Strong        Positive test is meaningful    │
-│ Accuracy         94.5%    Misleading!   Inflated by class imbalance    │
+│ Sensitivity      90%      Excellent     Missing only 10% of pumps       │
+│ Specificity      94.7%    Excellent     Low false alarm rate            │
+│ Precision        47.4%    Moderate      Many alerts are noise           │
+│ F1               62.1%    Good          Reasonable balance              │
+│ MCC              0.63     Good          Strong correlation              │
+│ LR+              17.1     Strong        Positive test is meaningful     │
+│ Accuracy         94.5%    Misleading!   Inflated by class imbalance     │
 └─────────────────────────────────────────────────────────────────────────┘
 
 KEY INSIGHT: Despite excellent sensitivity/specificity, precision is only 47%
