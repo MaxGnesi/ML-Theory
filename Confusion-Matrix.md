@@ -1336,28 +1336,81 @@ Key points:
 #### Interpreting ROC Curve Shape
 
 ```
-CURVE SHAPE                 INTERPRETATION
+ROC CURVE SHAPES (TPR on Y-axis, FPR on X-axis)
 ---------------------------------------------------------------------------
 
 Perfect (hugs top-left):    |----*
                             |    |     Excellent separation
                             |    |     between classes
                             *----+
+                           0,0   1,0
 
 Good (bows toward top-left):|   .--.
                             | .'    '.  Good discrimination
                             |'        \ 
                             *----------+
+                           0,0        1,1
 
 Poor (near diagonal):       |      .-'
                             |   .-'     Weak discrimination
                             |.-'        
                             *----------+
+                           0,0        1,1
 
 Worse than random:          |.---------+
                             |'.         Invert your predictions!
                             |  '-.      
                             *     '----+
+                           0,0        1,1
+```
+
+#### Interpreting Precision-Recall Curve Shape
+
+```
+PR CURVE SHAPES (Precision on Y-axis, Recall on X-axis)
+---------------------------------------------------------------------------
+Note: PR curves look DIFFERENT from ROC curves!
+      They start top-left (high P, low R) and end bottom-right (low P, high R)
+
+Perfect (hugs top-right):   *---------*
+                            |         |    Precision = 1.0 at all
+                            |         |    recall levels
+                            +---------+
+                           0,1       1,1
+
+Good (stays high, drops     *---.
+late):                      |    '-.       High precision maintained
+                            |       '-.    until high recall
+                            |          '-.
+                            +-----------'*
+                           0,1          1,0
+
+Average (gradual drop):     *-.
+                            |  '-.         Precision drops steadily
+                            |     '-.      as recall increases
+                            |        '-.
+                            +-----------*
+                           0,1         1,0
+
+Poor (drops quickly):       *
+                            |'.            Precision collapses
+                            |  '-.         almost immediately
+                            |     '-------.
+                            +-------------*
+                           0,1           1,0
+
+Random classifier:          *
+                            |'.
+                            |  '---------  Horizontal line at
+                            |  prevalence  y = prevalence
+                            +-------------+
+                           0,1           1,0
+
+KEY INSIGHT: 
+- ROC: Good = bows toward TOP-LEFT corner (0,1)
+- PR:  Good = bows toward TOP-RIGHT corner (1,1)
+- ROC baseline: diagonal from (0,0) to (1,1)  
+- PR baseline:  horizontal line at y = prevalence
 ```
 
 #### Why ROC Curves Are Powerful
