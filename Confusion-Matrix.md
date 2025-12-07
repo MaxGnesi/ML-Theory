@@ -792,19 +792,19 @@ MCC = (Geometric mean of correct rates) - (Geometric mean of error rates)
 
 ```
 +------------------------------------------------------------------+
-| PROPERTY                  | MCC  | F1   | Accuracy | Balanced   |
-|                           |      |      |          | Accuracy   |
+| PROPERTY                  | MCC  | F1   | Accuracy | Balanced    |
+|                           |      |      |          | Accuracy    |
 +------------------------------------------------------------------+
-| Uses all 4 cells (TN too) | Yes  | No   | Yes      | No         |
+| Uses all 4 cells (TN too) | Yes  | No   | Yes      | No          |
 +------------------------------------------------------------------+
-| Symmetric (pos/neg equal) | Yes  | No   | Yes      | Yes        |
+| Symmetric (pos/neg equal) | Yes  | No   | Yes      | Yes         |
 +------------------------------------------------------------------+
-| Robust to class imbalance | Yes  | Mod. | No       | Yes        |
+| Robust to class imbalance | Yes  | Mod. | No       | Yes         |
 +------------------------------------------------------------------+
-| Range includes negative   | Yes  | No   | No       | No         |
-| (detects inverse pred.)   |[-1,1]| [0,1]| [0,1]    | [0,0.5,1]  |
+| Range includes negative   | Yes  | No   | No       | No          |
+| (detects inverse pred.)   |[-1,1]| [0,1]| [0,1]    | [0,0.5,1]   |
 +------------------------------------------------------------------+
-| Correlation interpretation| Yes  | No   | No       | No         |
+| Correlation interpretation| Yes  | No   | No       | No          |
 +------------------------------------------------------------------+
 ```
 
@@ -964,18 +964,18 @@ Same test performance, but PPV collapses in low-prevalence!
 │               PREVALENCE SENSITIVITY                            │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT          │
-│  (Intrinsic test properties)     (Depends on population)       │
+│  PREVALENCE-INDEPENDENT          PREVALENCE-DEPENDENT           │
+│  (Intrinsic test properties)     (Depends on population)        │
 │                                                                 │
-│  • TPR (Sensitivity)             • PPV (Precision)             │
-│  • TNR (Specificity)             • NPV                         │
-│  • FPR                           • Accuracy                    │
-│  • FNR                           • F1 Score (moderately)       │
-│  • LR+                           • FDR                         │
-│  • LR−                           • FOR                         │
-│  • DOR                           • Markedness                  │
-│  • Informedness (Youden's J)                                   │
-│  • MCC                                                         │
+│  • TPR (Sensitivity)             • PPV (Precision)              │
+│  • TNR (Specificity)             • NPV                          │
+│  • FPR                           • Accuracy                     │
+│  • FNR                           • F1 Score (moderately)        │
+│  • LR+                           • FDR                          │
+│  • LR−                           • FOR                          │
+│  • DOR                           • Markedness                   │
+│  • Informedness (Youden's J)                                    │
+│  • MCC                                                          │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -1104,7 +1104,7 @@ Area Under ROC (AUC-ROC):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ DOMAIN                    PRIMARY METRICS         RATIONALE            │
+│ DOMAIN                    PRIMARY METRICS         RATIONALE             │
 ├─────────────────────────────────────────────────────────────────────────┤
 │ Medical Screening         Sensitivity (TPR)       Can't miss disease    │
 │                          NPV, LR−                 Negative = reassurance│
@@ -1112,28 +1112,28 @@ Area Under ROC (AUC-ROC):
 │ Medical Diagnosis         Specificity (TNR)       Confirm before        │
 │                          PPV, LR+                 treatment             │
 │                                                                         │
-│ Fraud Detection          Precision (PPV)         Review capacity       │
-│                          Recall (TPR)            limited               │
-│                          F1 or F2                                      │
+│ Fraud Detection          Precision (PPV)         Review capacity        │
+│                          Recall (TPR)            limited                │
+│                          F1 or F2                                       │
 │                                                                         │
-│ Spam Filtering           Precision               FP = lost email!      │
-│                          F0.5                                          │
+│ Spam Filtering           Precision               FP = lost email!       │
+│                          F0.5                                           │
 │                                                                         │
-│ Credit Risk              Depends on bank's       Usually Precision     │
-│                          loss function           (avoid bad loans)     │
+│ Credit Risk              Depends on bank's       Usually Precision      │
+│                          loss function           (avoid bad loans)      │
 │                                                                         │
-│ Information Retrieval    Precision@K             Top results matter    │
-│                          MAP, NDCG                                     │
+│ Information Retrieval    Precision@K             Top results matter     │
+│                          MAP, NDCG                                      │
 │                                                                         │
-│ Object Detection         IoU/Jaccard             Spatial overlap       │
-│                          mAP                                           │
+│ Object Detection         IoU/Jaccard             Spatial overlap        │
+│                          mAP                                            │
 │                                                                         │
-│ Academic Research        MCC                     Most rigorous         │
-│ (general ML)             AUC-ROC, AUC-PR         single metrics        │
+│ Academic Research        MCC                     Most rigorous          │
+│ (general ML)             AUC-ROC, AUC-PR         single metrics         │
 │                                                                         │
-│ Trading Signals          Precision               False signals costly  │
-│                          MCC                     Want true correlation │
-│                          Informedness            Better than random?   │
+│ Trading Signals          Precision               False signals costly   │
+│                          MCC                     Want true correlation  │
+│                          Informedness            Better than random?    │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1147,14 +1147,14 @@ Area Under ROC (AUC-ROC):
 ┌─────────────────────────────────────────────────────────────────────────┐
 │ METRIC          ZERO WHEN                    HANDLING                   │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ TPR             No actual positives (P=0)    Undefined (no positives)  │
-│ TNR             No actual negatives (N=0)    Undefined (no negatives)  │
-│ PPV             No predicted positives       Undefined or 0 by conv.   │
-│ NPV             No predicted negatives       Undefined or 1 by conv.   │
-│ F1              PPV or TPR is 0              0                         │
-│ MCC             Any row/col sums to 0        Undefined (0 by conv.)    │
-│ LR+             FPR = 0                      Infinity (perfect spec.)  │
-│ LR−             TNR = 0                      Infinity                  │
+│ TPR             No actual positives (P=0)    Undefined (no positives)   │
+│ TNR             No actual negatives (N=0)    Undefined (no negatives)   │
+│ PPV             No predicted positives       Undefined or 0 by conv.    │
+│ NPV             No predicted negatives       Undefined or 1 by conv.    │
+│ F1              PPV or TPR is 0              0                          │
+│ MCC             Any row/col sums to 0        Undefined (0 by conv.)     │
+│ LR+             FPR = 0                      Infinity (perfect spec.)   │
+│ LR−             TNR = 0                      Infinity                   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -1240,17 +1240,17 @@ Off-diagonal = errors (shows confusion patterns)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ STRATEGY        FORMULA                    USE WHEN                    │
+│ STRATEGY        FORMULA                    USE WHEN                     │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                      │
-│                 Treats all classes equally    Class balance matters    │
-│                                              equally                   │
-│                                                                        │
-│ Micro-average   Compute from aggregated      Sample-level             │
-│                 TP, FP, FN across classes    performance matters      │
-│                                                                        │
-│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should     │
-│                                              matter more               │
+│ Macro-average   (Metric_c1 + ... + Metric_ck) / K                       │
+│                 Treats all classes equally    Class balance matters     │
+│                                              equally                    │
+│                                                                         │
+│ Micro-average   Compute from aggregated      Sample-level               │
+│                 TP, FP, FN across classes    performance matters        │
+│                                                                         │
+│ Weighted-avg    Σ (n_i × Metric_i) / Σ n_i  Larger classes should       │
+│                                              matter more                │
 └─────────────────────────────────────────────────────────────────────────┘
 
 Example:
@@ -1263,7 +1263,670 @@ Weighted precision = (100×0.9 + 900×0.7) / 1000 = 0.72
 
 ---
 
-## Part 8: Worked Example with Full Analysis
+## Part 8: ROC and Precision-Recall Curves — Complete Guide
+
+The confusion matrix gives you performance at ONE threshold. But your classifier outputs probabilities/scores, and different thresholds give different confusion matrices. **Curves show performance across ALL thresholds.**
+
+### 8.1 The Threshold Concept
+
+Most classifiers output a score or probability, not a binary decision:
+
+```
+Classifier output: P(positive|x) = 0.73
+
+With threshold = 0.5:  0.73 > 0.5  -> Predict POSITIVE
+With threshold = 0.8:  0.73 < 0.8  -> Predict NEGATIVE
+```
+
+**Each threshold produces a different confusion matrix:**
+
+```
+Threshold   TP    FP    FN    TN    TPR    FPR    Precision
+-----------------------------------------------------------------
+0.9         10    2     90    898   0.10   0.002  0.83
+0.7         45    15    55    885   0.45   0.017  0.75
+0.5         70    50    30    850   0.70   0.056  0.58
+0.3         85    120   15    780   0.85   0.133  0.41
+0.1         98    300   2     600   0.98   0.333  0.25
+
+Lower threshold -> More positive predictions -> Higher TPR but also higher FPR
+```
+
+### 8.2 ROC Curve (Receiver Operating Characteristic)
+
+**Origin:** Developed in WWII for radar operators to distinguish signal (enemy aircraft) from noise. "Receiver Operating Characteristic" comes from this signal detection context.
+
+#### What It Plots
+
+```
+X-axis: False Positive Rate (FPR) = FP / N = FP / (FP + TN)
+Y-axis: True Positive Rate (TPR) = TP / P = TP / (TP + FN)
+
+As you sweep threshold from high to low:
+- Start at (0, 0): threshold = infinity, predict nothing positive
+- End at (1, 1): threshold = -infinity, predict everything positive
+```
+
+#### Visual Anatomy of an ROC Curve
+
+```
+TPR (Sensitivity)
+  1.0 |                        .-----------* (1,1)
+      |                    .--'            
+      |                 .-'                 
+      |              .-'    <- The curve   
+      |           .-'                       
+  0.5 |        .-'        .               
+      |      .'        .-'                  
+      |    .'       .-'  <- Random classifier (diagonal)
+      |  .'     .-'                        
+      | .   .-'                            
+  0.0 *-.-'--------------------------------
+      0.0                 0.5              1.0
+                    FPR (1 - Specificity)
+
+Key points:
+- (0,0): Predict nothing positive (threshold = +inf)
+- (1,1): Predict everything positive (threshold = -inf)
+- (0,1): Perfect classifier (no errors)
+- Diagonal: Random classifier (no skill)
+- Below diagonal: Worse than random (invert predictions!)
+```
+
+#### Interpreting ROC Curve Shape
+
+```
+CURVE SHAPE                 INTERPRETATION
+---------------------------------------------------------------------------
+
+Perfect (hugs top-left):    |----*
+                            |    |     Excellent separation
+                            |    |     between classes
+                            *----+
+
+Good (bows toward top-left):|   .--.
+                            | .'    '.  Good discrimination
+                            |'        \ 
+                            *----------+
+
+Poor (near diagonal):       |      .-'
+                            |   .-'     Weak discrimination
+                            |.-'        
+                            *----------+
+
+Worse than random:          |.---------+
+                            |'.         Invert your predictions!
+                            |  '-.      
+                            *     '----+
+```
+
+#### Why ROC Curves Are Powerful
+
+**1. Threshold-independent evaluation:**
+   - See performance across ALL possible operating points
+   - Don't need to commit to a threshold during evaluation
+
+**2. Class-distribution invariant:**
+   - ROC curves don't change when class proportions change
+   - Both TPR and FPR are computed within their respective classes
+
+```
+Why invariant? Both axes are "columnar ratios" in the confusion matrix:
+
+TPR = TP / (TP + FN)  <- Only uses the "Actual Positive" row
+FPR = FP / (FP + TN)  <- Only uses the "Actual Negative" row
+
+Changing the ratio of positives to negatives doesn't affect these!
+```
+
+**3. Visual comparison of classifiers:**
+   - A curve entirely above another is strictly better
+   - Curves that cross indicate different strengths at different operating points
+
+#### Area Under ROC Curve (AUC-ROC)
+
+```
+AUC = Area under the ROC curve
+
+Range: [0, 1]
+- AUC = 1.0: Perfect classifier
+- AUC = 0.5: Random classifier (no discrimination)
+- AUC < 0.5: Worse than random (invert predictions!)
+```
+
+**Probabilistic interpretation (Wilcoxon-Mann-Whitney statistic):**
+
+```
+AUC = P(score(random positive) > score(random negative))
+
+In words: If you pick a random positive and a random negative,
+AUC is the probability the classifier ranks the positive higher.
+```
+
+**Relationship to Gini coefficient:**
+
+```
+Gini = 2 * AUC - 1
+
+AUC = 0.5  ->  Gini = 0 (no discrimination)
+AUC = 1.0  ->  Gini = 1 (perfect discrimination)
+
+Gini measures how far the ROC curve is from the diagonal.
+```
+
+**Rough interpretation guide:**
+
+```
+AUC           Interpretation
+-----------------------------------
+0.90 - 1.00   Excellent
+0.80 - 0.90   Good
+0.70 - 0.80   Fair
+0.60 - 0.70   Poor
+0.50 - 0.60   Fail (near random)
+```
+
+**Computing AUC efficiently:**
+
+```python
+from sklearn.metrics import roc_auc_score, roc_curve
+import matplotlib.pyplot as plt
+
+# y_true: actual labels (0/1)
+# y_scores: predicted probabilities or scores
+
+auc = roc_auc_score(y_true, y_scores)
+
+# Get the curve points
+fpr, tpr, thresholds = roc_curve(y_true, y_scores)
+
+# Plot
+plt.plot(fpr, tpr, label=f'ROC (AUC = {auc:.3f})')
+plt.plot([0, 1], [0, 1], 'k--', label='Random')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.legend()
+plt.title('ROC Curve')
+```
+
+#### ROC Curve Limitations
+
+**1. Can be misleading with severe class imbalance:**
+
+```
+With 0.1% positive rate:
+
+A classifier with TPR=0.80 and FPR=0.01 looks great on ROC!
+
+But in absolute numbers (per 1,000,000 samples):
+- 1,000 positives -> 800 caught (TP)
+- 999,000 negatives -> 9,990 false alarms (FP)
+
+Precision = 800 / (800 + 9990) = 7.4%
+
+Over 90% of your alerts are wrong!
+ROC hides this; PR curve reveals it immediately.
+```
+
+**2. Doesn't show actual precision**
+
+**3. Treats FP and FN symmetrically (may not match your costs)**
+
+---
+
+### 8.3 Precision-Recall (PR) Curve
+
+#### What It Plots
+
+```
+X-axis: Recall = TPR = TP / (TP + FN)
+Y-axis: Precision = PPV = TP / (TP + FP)
+
+As you sweep threshold from high to low:
+- Start at high precision, low recall (conservative)
+- End at low precision, high recall (liberal)
+```
+
+#### Visual Anatomy of a PR Curve
+
+```
+Precision
+  1.0 *---.
+      |    '-.
+      |       '-.
+      |          '-.    <- Good classifier
+      |             '-.
+  0.5 |               '-.
+      |                  '-.
+      |    Baseline: ------'--------  (prevalence line)
+      |                           '-.
+      |                              '-.
+  0.0 +--------------------------------*
+      0.0                              1.0
+                     Recall (TPR)
+
+Key differences from ROC:
+- Starts top-left (high precision, low recall)
+- Ends bottom-right (low precision, high recall)  
+- Baseline is NOT diagonal - it's a horizontal line at y = prevalence
+- Higher curve = better (want to maximize area)
+```
+
+#### The Baseline Problem
+
+Unlike ROC where random = diagonal, in PR curves the baseline depends on prevalence:
+
+```
+Random classifier precision = P / (P + N) = prevalence
+
+Example:
+- 5% prevalence  -> random precision = 0.05
+- 50% prevalence -> random precision = 0.50
+
+A "good" PR curve should be well above the prevalence line.
+```
+
+#### Why PR Curves for Imbalanced Data
+
+```
+Scenario: Fraud detection with 0.1% fraud rate (1 in 1000)
+
+Classifier A: Flags 100 transactions, 50 are actually fraud
+- Precision = 50/100 = 50%
+- Recall = 50/100 = 50% (assuming 100 total frauds)
+
+ROC perspective:
+- TPR = 0.50
+- FPR = 50/99900 = 0.0005 (looks amazing!)
+- AUC might be 0.95+ (excellent!)
+
+PR perspective:
+- Precision = 50%
+- Recall = 50%
+- Shows the ACTUAL usefulness: half your alerts are wrong
+
+The PR curve reveals that despite great AUC, 
+you still waste resources on 50% false alerts.
+```
+
+#### Area Under PR Curve (AUC-PR, Average Precision)
+
+```python
+from sklearn.metrics import average_precision_score, precision_recall_curve
+
+# Average Precision (AP) approximates AUC-PR
+ap = average_precision_score(y_true, y_scores)
+
+# Get curve points
+precision, recall, thresholds = precision_recall_curve(y_true, y_scores)
+
+# Plot
+plt.plot(recall, precision, label=f'PR (AP = {ap:.3f})')
+plt.axhline(y=prevalence, color='r', linestyle='--', label='Random')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.legend()
+plt.title('Precision-Recall Curve')
+```
+
+**Interpretation:**
+- AUC-PR closer to 1.0 = better
+- Baseline AUC-PR = prevalence
+- Much harder to get high AUC-PR with imbalanced data (which is appropriate!)
+
+---
+
+### 8.4 ROC vs PR: When to Use Which
+
+```
++------------------+----------------------------------+----------------------------------+
+|                  | ROC CURVE                        | PR CURVE                         |
++------------------+----------------------------------+----------------------------------+
+| Best for         | Balanced classes                 | Imbalanced classes               |
+|                  | Equal concern for both classes   | Focus on positive class          |
++------------------+----------------------------------+----------------------------------+
+| Baseline         | Diagonal (always 0.5 AUC)        | Horizontal at prevalence         |
++------------------+----------------------------------+----------------------------------+
+| Class imbalance  | Insensitive (can be misleading)  | Sensitive (reveals problems)     |
+| effect           |                                  |                                  |
++------------------+----------------------------------+----------------------------------+
+| Shows            | Tradeoff: TPR vs FPR             | Tradeoff: Precision vs Recall    |
+|                  | (within-class rates)             | (precision is cross-class)       |
++------------------+----------------------------------+----------------------------------+
+| Invariant to     | YES                              | NO                               |
+| class skew?      |                                  |                                  |
++------------------+----------------------------------+----------------------------------+
+| Good for         | Medical diagnostics              | Information retrieval            |
+|                  | Comparing classifiers generally  | Rare event detection             |
+|                  | When TN matters                  | Fraud, anomaly detection         |
++------------------+----------------------------------+----------------------------------+
+```
+
+**Decision rule:**
+
+```
+IF:
+  - Classes are roughly balanced (within 60-40), OR
+  - You care equally about both classes, OR
+  - True negatives are important
+THEN: Use ROC
+
+IF:
+  - Positive class is rare (<10%), OR
+  - You mainly care about finding positives, OR
+  - True negatives are abundant and uninteresting
+THEN: Use PR curve
+```
+
+**Visual demonstration of why this matters:**
+
+```
+Same classifier, same performance, different class distributions:
+
+BALANCED (50% positive):
+  ROC-AUC = 0.85    
+  PR-AUC  = 0.82    <- Both look similar, both useful
+
+IMBALANCED (1% positive):
+  ROC-AUC = 0.85    <- Looks the same! (invariant to skew)
+  PR-AUC  = 0.15    <- Reveals the actual usefulness is much lower
+
+The PR curve tells the truth about imbalanced performance.
+```
+
+---
+
+### 8.5 The Convex Hull and Operating Point Selection
+
+Not all points on an ROC curve are equally useful. The **ROC Convex Hull (ROCCH)** identifies potentially optimal classifiers.
+
+```
+TPR
+  1.0 |           C---------D
+      |          /           \
+      |         /             \
+      |        B               \
+      |       /                 E
+  0.5 |      /                  |
+      |     /                   |
+      |    A                    |
+      |   /                     |
+      |  /                      |
+  0.0 *--------------------------
+      0.0                      1.0
+                    FPR
+
+Points on convex hull: A, B, C, D, E (connected)
+Any point INSIDE the hull is suboptimal - 
+you can always do better by interpolating between hull points.
+```
+
+#### Choosing an Operating Point
+
+The optimal threshold depends on your **cost structure**:
+
+```
+Define: 
+  c(FP) = cost of a false positive
+  c(FN) = cost of a false negative
+  p = P(positive) = prevalence
+
+Optimal slope of iso-performance line:
+  slope = [c(FP) * (1-p)] / [c(FN) * p]
+
+The optimal point is where a line of this slope 
+is tangent to the ROC curve (or convex hull).
+```
+
+**Example - Trading signals:**
+
+```
+Signal detection for entering trades:
+- Prevalence = 5% (good setups are rare)
+- Cost of missing a trade (FN) = $500 expected profit foregone
+- Cost of false signal (FP) = $200 average losing trade
+
+slope = (200 * 0.95) / (500 * 0.05) = 190/25 = 7.6
+
+A steep slope means: prioritize avoiding false positives
+Find tangent point with slope ~7.6 on ROC curve
+
+With different costs (FN more expensive):
+- Cost of FN = $2000, Cost of FP = $100
+slope = (100 * 0.95) / (2000 * 0.05) = 95/100 = 0.95
+
+A shallow slope means: prioritize catching positives (higher TPR)
+```
+
+#### Youden's J Statistic for Threshold Selection
+
+If costs are unknown or equal, maximize Youden's J:
+
+```
+Youden's J = TPR + TNR - 1 = TPR - FPR = Sensitivity + Specificity - 1
+
+This equals the vertical distance from the ROC curve to the diagonal.
+
+Optimal threshold = argmax(TPR - FPR) over all thresholds
+```
+
+```python
+# Find optimal threshold using Youden's J
+fpr, tpr, thresholds = roc_curve(y_true, y_scores)
+optimal_idx = np.argmax(tpr - fpr)
+optimal_threshold = thresholds[optimal_idx]
+```
+
+---
+
+### 8.6 Common ROC/PR Pitfalls
+
+#### Pitfall 1: Comparing AUCs from Different Datasets
+
+```
+Dataset A: AUC = 0.85
+Dataset B: AUC = 0.92
+
+Can we say the model is better on B?
+
+NO! Datasets may have:
+- Different class separability (some problems are just easier)
+- Different prevalence (affects PR, makes comparison harder)
+- Different noise levels
+- Different feature distributions
+```
+
+#### Pitfall 2: Ignoring Confidence Intervals
+
+```
+Single train-test split AUC = 0.87
+
+This is a POINT ESTIMATE! True performance might be 0.80-0.94.
+
+Use cross-validation or bootstrap to get confidence intervals:
+- 5-fold CV: AUC = 0.85 +/- 0.04
+- This tells you the model reliably performs around 0.81-0.89
+```
+
+#### Pitfall 3: High AUC != Good Calibration
+
+```
+AUC measures RANKING ability (discrimination).
+It does NOT measure probability calibration.
+
+A model can have perfect AUC = 1.0 but terrible calibration:
+- Says P=0.99 for all positives (correct ranking)
+- Says P=0.01 for all negatives (correct ranking)
+- But actual positive rate at P=0.99 might be 60%, not 99%
+
+Use calibration plots (reliability diagrams) and Brier score separately!
+```
+
+#### Pitfall 4: Using ROC for Highly Imbalanced Data
+
+```
+With 0.1% positive rate (fraud detection, rare disease):
+
+A classifier with:
+- TPR = 0.80 (catches 80% of positives)
+- FPR = 0.01 (only 1% false positive rate)
+
+Looks GREAT on ROC curve!
+
+But per 1,000,000 samples:
+- 1,000 positives: catch 800 (TP)
+- 999,000 negatives: flag 9,990 as positive (FP)
+
+Precision = 800 / 10,790 = 7.4%
+
+Over 92% of your alerts are false alarms!
+
+Always check PR curve for imbalanced problems.
+```
+
+#### Pitfall 5: Interpolating Between Points Incorrectly
+
+```
+ROC curves from finite test sets are step functions.
+When averaging or interpolating:
+
+WRONG: Linear interpolation in ROC space
+       (Can create impossible points)
+
+RIGHT: For equally-scored instances, average their contributions
+       (This creates the diagonal segments you see in practice)
+```
+
+---
+
+### 8.7 Practical Code Examples
+
+#### Complete ROC and PR Analysis
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import (
+    roc_curve, roc_auc_score,
+    precision_recall_curve, average_precision_score,
+    confusion_matrix
+)
+
+def full_curve_analysis(y_true, y_scores, title="Model"):
+    """Complete ROC and PR curve analysis."""
+    
+    # Calculate curves
+    fpr, tpr, roc_thresholds = roc_curve(y_true, y_scores)
+    precision, recall, pr_thresholds = precision_recall_curve(y_true, y_scores)
+    
+    # Calculate areas
+    roc_auc = roc_auc_score(y_true, y_scores)
+    pr_auc = average_precision_score(y_true, y_scores)
+    
+    # Calculate prevalence (baseline for PR)
+    prevalence = y_true.mean()
+    
+    # Find optimal threshold (Youden's J)
+    optimal_idx = np.argmax(tpr - fpr)
+    optimal_threshold = roc_thresholds[optimal_idx]
+    
+    # Plot
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    
+    # ROC Curve
+    axes[0].plot(fpr, tpr, 'b-', lw=2, label=f'ROC (AUC = {roc_auc:.3f})')
+    axes[0].plot([0, 1], [0, 1], 'k--', lw=1, label='Random')
+    axes[0].scatter(fpr[optimal_idx], tpr[optimal_idx], 
+                    c='red', s=100, zorder=5, label=f'Optimal (t={optimal_threshold:.2f})')
+    axes[0].set_xlabel('False Positive Rate')
+    axes[0].set_ylabel('True Positive Rate')
+    axes[0].set_title(f'{title} - ROC Curve')
+    axes[0].legend(loc='lower right')
+    axes[0].grid(True, alpha=0.3)
+    
+    # PR Curve
+    axes[1].plot(recall, precision, 'b-', lw=2, label=f'PR (AP = {pr_auc:.3f})')
+    axes[1].axhline(y=prevalence, color='k', linestyle='--', lw=1, 
+                    label=f'Random (prevalence = {prevalence:.3f})')
+    axes[1].set_xlabel('Recall')
+    axes[1].set_ylabel('Precision')
+    axes[1].set_title(f'{title} - Precision-Recall Curve')
+    axes[1].legend(loc='upper right')
+    axes[1].grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    return {
+        'roc_auc': roc_auc,
+        'pr_auc': pr_auc,
+        'optimal_threshold': optimal_threshold,
+        'prevalence': prevalence
+    }
+```
+
+#### Cross-Validated AUC with Confidence Intervals
+
+```python
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+
+def cv_auc_with_ci(model, X, y, cv=5):
+    """Calculate AUC with confidence intervals via cross-validation."""
+    
+    cv_scores = cross_val_score(model, X, y, cv=StratifiedKFold(cv), scoring='roc_auc')
+    
+    mean_auc = cv_scores.mean()
+    std_auc = cv_scores.std()
+    ci_95 = 1.96 * std_auc / np.sqrt(cv)
+    
+    print(f"AUC: {mean_auc:.3f} +/- {ci_95:.3f} (95% CI)")
+    print(f"Range: [{mean_auc - ci_95:.3f}, {mean_auc + ci_95:.3f}]")
+    
+    return mean_auc, std_auc, cv_scores
+```
+
+---
+
+### 8.8 Summary: ROC and PR Curves
+
+```
++--------------------+---------------------------------------------------+
+| CONCEPT            | KEY POINTS                                        |
++--------------------+---------------------------------------------------+
+| ROC Curve          | Plots TPR vs FPR across thresholds                |
+|                    | Invariant to class distribution                   |
+|                    | Random = diagonal, perfect = top-left corner      |
++--------------------+---------------------------------------------------+
+| AUC-ROC            | Single number summary of ROC                      |
+|                    | = P(positive ranked above negative)               |
+|                    | Range: 0.5 (random) to 1.0 (perfect)              |
+|                    | Related: Gini = 2*AUC - 1                         |
++--------------------+---------------------------------------------------+
+| PR Curve           | Plots Precision vs Recall across thresholds       |
+|                    | Better for imbalanced data                        |
+|                    | Random = horizontal line at prevalence            |
++--------------------+---------------------------------------------------+
+| AUC-PR (AP)        | Single number summary of PR curve                 |
+|                    | Harder to achieve high values with imbalance      |
+|                    | Baseline = prevalence                             |
++--------------------+---------------------------------------------------+
+| When to use ROC    | Balanced classes, care about both classes         |
+|                    | Comparing models across different datasets        |
++--------------------+---------------------------------------------------+
+| When to use PR     | Imbalanced classes, focus on positive class       |
+|                    | Rare event detection, information retrieval       |
++--------------------+---------------------------------------------------+
+| Operating Point    | Use cost structure to find optimal threshold      |
+| Selection          | Youden's J when costs unknown: max(TPR - FPR)     |
++--------------------+---------------------------------------------------+
+| Key limitation     | Neither measures calibration!                     |
+|                    | Use Brier score / calibration plots separately    |
++--------------------+---------------------------------------------------+
+```
+
+---
+
+## Part 9: Worked Example with Full Analysis
 
 ### Scenario: Crypto Pump Detection Model
 
@@ -1367,15 +2030,15 @@ Jaccard = 45/(45+5+50) = 45/100 = 0.450 = 45%
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ METRIC           VALUE    ASSESSMENT    IMPLICATION                    │
+│ METRIC           VALUE    ASSESSMENT    IMPLICATION                     │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ Sensitivity      90%      Excellent     Missing only 10% of pumps      │
-│ Specificity      94.7%    Excellent     Low false alarm rate           │
-│ Precision        47.4%    Moderate      Many alerts are noise          │
-│ F1               62.1%    Good          Reasonable balance             │
-│ MCC              0.63     Good          Strong correlation             │
-│ LR+              17.1     Strong        Positive test is meaningful    │
-│ Accuracy         94.5%    Misleading!   Inflated by class imbalance    │
+│ Sensitivity      90%      Excellent     Missing only 10% of pumps       │
+│ Specificity      94.7%    Excellent     Low false alarm rate            │
+│ Precision        47.4%    Moderate      Many alerts are noise           │
+│ F1               62.1%    Good          Reasonable balance              │
+│ MCC              0.63     Good          Strong correlation              │
+│ LR+              17.1     Strong        Positive test is meaningful     │
+│ Accuracy         94.5%    Misleading!   Inflated by class imbalance     │
 └─────────────────────────────────────────────────────────────────────────┘
 
 KEY INSIGHT: Despite excellent sensitivity/specificity, precision is only 47%
@@ -1389,7 +2052,7 @@ PRACTICAL ACTION:
 
 ---
 
-## Part 9: Quick Reference Card
+## Part 10: Quick Reference Card
 
 ```
 +=========================================================================+
@@ -1430,7 +2093,7 @@ PRACTICAL ACTION:
 
 ---
 
-## Part 10: Common Mistakes to Avoid
+## Part 11: Common Mistakes to Avoid
 
 1. **Using accuracy on imbalanced data**
    Always report F1, MCC, or balanced accuracy alongside
