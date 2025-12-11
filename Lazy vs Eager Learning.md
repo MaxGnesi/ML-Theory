@@ -2,7 +2,7 @@
 
 ## The Fundamental Question
 
-Max, let's step back to the absolute foundation. Every supervised learning algorithm is trying to solve the same problem:
+Let's step back to the absolute foundation. Every supervised learning algorithm is trying to solve the same problem:
 
 > **Given observations $(x_i, y_i)$ from some unknown data-generating process, find a function $\hat{f}$ that predicts $y$ for new, unseen $x$ values.**
 
