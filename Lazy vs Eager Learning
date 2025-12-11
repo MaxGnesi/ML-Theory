@@ -1,0 +1,35 @@
+## The Complete Picture
+
+```mermaid
+graph TD
+    A[Supervised Learning] --> B[Lazy Learning<br/>The Sommelier]
+    A --> C[Eager Learning<br/>The Cartographer]
+    
+    B --> B1[Store all data<br/>Predict by similarity]
+    B1 --> B2[Distance metrics:<br/>d = ||x-x'||]
+    B2 --> B3[Error control:<br/>• Cross-validation<br/>• k selection<br/>• Feature scaling]
+    
+    C --> C1[Learn parameters θ*<br/>Predict by f_θ]
+    C1 --> C2[Minimize: J = L + λR]
+    C2 --> D[Analytical<br/>Bowl-shaped]
+    C2 --> E[Iterative<br/>Fog descent]
+    C2 --> F[Heuristic<br/>Trail blazing]
+    
+    D --> D1[θ* = X'X⁻¹X'y]
+    D1 --> D2[Linear models<br/>Ridge/Lasso]
+    
+    E --> E1[θ ← θ - η∇J]
+    E1 --> E2[Neural nets<br/>Deep learning]
+    E2 --> E3[Adam, SGD, RMSProp]
+    E3 --> E4[Momentum<br/>v = γv + η∇J]
+    E3 --> E5[Adaptive rates<br/>η ∝ 1/√Σg²]
+    
+    F --> F1[Greedy splits]
+    F1 --> F2[Decision trees<br/>Random forests]
+    
+    style A fill:#e1f5ff
+    style B fill:#fff4e1
+    style C fill:#e1ffe1
+    style D fill:#ffe1e1
+    style E fill:#f0e1ff
+    style F fill:#ffe1f0
