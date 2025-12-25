@@ -40,7 +40,7 @@ Total Prediction Error = Epistemic Uncertainty + Aleatoric Uncertainty
                        = Reducible           + Irreducible
 
 Expected Loss = E[(y - ŷ)²] = Bias² + Variance + σ²
-                              \_____Epistemic____/  \Aleatoric/
+                              \___Epistemic___/  \Aleatoric/
 ```
 
 ### Trading Application
