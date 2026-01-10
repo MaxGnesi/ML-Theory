@@ -1,7 +1,3 @@
-You’re absolutely right - the parameters appear without explanation! Let me add a comprehensive **Parameter Guide** section that clearly explains where each parameter comes from and what it represents.
-
------
-
 # 🎯 **The Complete Gradient Descent Family: Sequential Walkthrough**
 
 ## 📋 Setup: Data & Goal
