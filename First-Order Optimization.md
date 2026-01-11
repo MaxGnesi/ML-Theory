@@ -1167,14 +1167,52 @@ torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 # TensorFlow/Keras
 optimizer = tf.keras.optimizers.Adam(clipnorm=1.0)
 ```
-
 **When to use**: RNNs, transformers, or any model where loss suddenly becomes NaN.
 
-Method,Update Logic,Key Property
-SGD,w=w−η⋅g,Baseline; simple but high variance.
-Momentum,v=βv+g  w=w−ηv,Dampens oscillations by using velocity.
-AdaGrad,G=G+g2  w=w−G+ϵ​η​⋅g,Per-parameter LR; eventually freezes.
-RMSprop,E[g2]=ρE[g2]+(1−ρ)g2  w=w−E[g2]+ϵ​η​⋅g,Decaying memory; fixes AdaGrad freeze.
-Adam,m=β1​m+(1−β1​)g  v=β2​v+(1−β2​)g2  w=w−ηv^+ϵ​m^​,Momentum + RMSprop + Bias Correction.
+---
+
+## 📋 **Optimizer Cheat Sheet**
+
+| Method | Update Logic | Key Property |
+|--------|--------------|--------------|
+| **SGD** | `w = w - η·g` | Baseline; simple but high variance |
+| **Momentum** | `v = βv + g` | Dampens oscillations using velocity |
+| | `w = w - ηv` | |
+| **AdaGrad** | `G = G + g²` | Per-parameter LR; good for sparse data but freezes |
+| | `w = w - (η/√(G+ε))·g` | |
+| **RMSprop** | `E[g²] = ρ·E[g²] + (1-ρ)·g²` | Decaying memory fixes AdaGrad freezing |
+| | `w = w - (η/√(E[g²]+ε))·g` | |
+| **Adam** | `m = β₁m + (1-β₁)g` | Combines Momentum + RMSprop |
+| | `v = β₂v + (1-β₂)g²` | with bias correction |
+| | `w = w - η·m̂/√(v̂+ε)` | |
+
+---
+
+### **Default Hyperparameters**
+
+| Parameter | Value | Used By |
+|-----------|-------|---------|
+| η (learning rate) | 0.001 | All |
+| β (momentum) | 0.9 | Momentum |
+| ρ (decay) | 0.9 | RMSprop |
+| β₁ | 0.9 | Adam |
+| β₂ | 0.999 | Adam |
+| ε | 1e-8 | AdaGrad, RMSprop, Adam |
+
+---
+
+### **When to Use What**
+
+| Scenario | Recommended Optimizer |
+|----------|----------------------|
+| Default starting point | Adam or AdamW |
+| Sparse data (NLP, embeddings) | AdaGrad or Adam |
+| Computer vision fine-tuning | SGD + Momentum |
+| Transformers | AdamW |
+| Training explodes | Decrease η, try gradient clipping |
+| Generalization matters most | SGD + Momentum or AdamW |
+
+---
+
 
 ---
