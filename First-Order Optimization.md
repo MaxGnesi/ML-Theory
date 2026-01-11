@@ -373,12 +373,11 @@ Weight: w = 4.6 - (0.1 × -15.2) = 4.6 + 1.52 = 6.12
 
 *🚀 OVERSHOOT! The old velocity (-16) dominated the tiny new gradient (-0.8)*
 
-💡 **Why Nesterov Momentum (NAG) exists**: This overshoot is exactly the problem 
-Nesterov Momentum was designed to solve. Instead of computing the gradient at the 
-current position and then applying velocity, NAG "looks ahead" by first applying 
-velocity, then computing the gradient at that future position. This lets it 
-"see" the overshoot coming and brake earlier. In PyTorch: 
-`torch.optim.SGD(params, lr=0.1, momentum=0.9, nesterov=True)`
+💡 **Why Nesterov Momentum (NAG) exists**: The overshoot you see in Method 2 happens because standard Momentum is "blind"—it calculates the gradient at the current position, adds it to the old velocity, and then leaps forward. By the time it realizes it has passed the target, the momentum is already too high to stop instantly.
+
+Nesterov Accelerated Gradient (NAG) fixes this by changing the order of operations. It performs the "jump" first using the existing velocity, then calculates the gradient at that new "look-ahead" position. If that jump went too far, the gradient at the new spot will immediately point back, acting as an early brake before the weight update is finalized.
+
+In code, this is usually just a flag within the SGD optimizer: torch.optim.SGD(params, lr=0.1, momentum=0.9, nesterov=True)
 ---
 
 ### **Method 3: AdaGrad**
@@ -1142,12 +1141,8 @@ This relates to a fundamental statistical property: **Var(mean) < mean(Var)**. A
 | **AdaGrad stops learning mid-training** | G accumulated too large | Switch to RMSprop or Adam |
 | **Adam converges worse than SGD** | Adam's adaptive LR hurts generalization | Try AdamW, or switch to SGD+Momentum for fine-tuning |
 
-💡 **Note on AdamW**: In modern practice, we almost always use `AdamW` instead 
-of `Adam`. Standard Adam applies weight decay incorrectly—it scales the decay 
-by the adaptive learning rate, which weakens regularization for parameters with 
-large gradients. AdamW fixes this by applying weight decay directly to the weights, 
-separate from the gradient update. This seemingly small change drastically improves 
-generalization. In PyTorch: `torch.optim.AdamW(params, lr=0.001, weight_decay=0.01)`
+**Note on AdamW**: While Method 5 (Adam) is the most famous adaptive optimizer, modern research—especially for Transformers—almost exclusively uses AdamW.
+The difference lies in how Weight Decay (L2 regularization) is handled. In standard Adam, the penalty for large weights is mixed into the gradient. Because Adam then scales that gradient by its moving average, the regularization effect becomes inconsistent. AdamW solves this by decoupling the two: it updates the state variables using only the loss, and then subtracts the weight decay penalty directly from the weights at the very end of the step. This simple shift is why AdamW generalizes much better on complex datasets.
 ---
 
 ### **Quick Decision Framework**
