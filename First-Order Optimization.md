@@ -1141,8 +1141,7 @@ This relates to a fundamental statistical property: **Var(mean) < mean(Var)**. A
 | **AdaGrad stops learning mid-training** | G accumulated too large | Switch to RMSprop or Adam |
 | **Adam converges worse than SGD** | Adam's adaptive LR hurts generalization | Try AdamW, or switch to SGD+Momentum for fine-tuning |
 
-**Note on AdamW**: While Method 5 (Adam) is the most famous adaptive optimizer, modern research—especially for Transformers—almost exclusively uses AdamW.
-The difference lies in how Weight Decay (L2 regularization) is handled. In standard Adam, the penalty for large weights is mixed into the gradient. Because Adam then scales that gradient by its moving average, the regularization effect becomes inconsistent. AdamW solves this by decoupling the two: it updates the state variables using only the loss, and then subtracts the weight decay penalty directly from the weights at the very end of the step. This simple shift is why AdamW generalizes much better on complex datasets.
+💡 Note on AdamW: While Adam is the most famous adaptive optimizer, modern practice—especially for Transformers—almost exclusively uses AdamW. The difference lies in how weight decay (L2 regularization) is handled. In standard Adam, the penalty for large weights is mixed into the gradient, and because Adam then scales that gradient by its moving average, the regularization effect becomes inconsistent. AdamW solves this by decoupling the two: it updates the state variables using only the loss gradient, then subtracts the weight decay penalty directly from the weights at the end of each step. This simple shift is why AdamW generalizes much better on complex datasets. In PyTorch: torch.optim.AdamW(params, lr=0.001, weight_decay=0.01)
 ---
 
 ### **Quick Decision Framework**
