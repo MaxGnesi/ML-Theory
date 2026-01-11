@@ -1,7 +1,3 @@
-Here's the complete consolidated document:
-
----
-
 # 🎯 **First-Order Optimization**
 ### *A Sequential Walkthrough from SGD to Adam*
 
