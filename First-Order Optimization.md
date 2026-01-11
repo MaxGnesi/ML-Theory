@@ -1170,4 +1170,11 @@ optimizer = tf.keras.optimizers.Adam(clipnorm=1.0)
 
 **When to use**: RNNs, transformers, or any model where loss suddenly becomes NaN.
 
+Method,Update Logic,Key Property
+SGD,w=w−η⋅g,Baseline; high variance.
+Momentum,v=βv+g  w=w−ηv,Dampens oscillations; uses velocity.
+AdaGrad,G=G+g2  w=w−G+ϵ​η​⋅g,Per-parameter LR; eventually freezes.
+RMSprop,E[g2]=ρE[g2]+(1−ρ)g2  w=w−E[g2]+ϵ​η​⋅g,Decaying memory; fixes AdaGrad freeze.
+Adam,m=β1​m+(1−β1​)g  v=β2​v+(1−β2​)g2  w=w−ηv^+ϵ​m^​,Momentum + RMSprop + Bias Correction.
+
 ---
