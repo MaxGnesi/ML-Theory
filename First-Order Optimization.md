@@ -1170,6 +1170,11 @@ optimizer = tf.keras.optimizers.Adam(clipnorm=1.0)
 
 **When to use**: RNNs, transformers, or any model where loss suddenly becomes NaN.
 
-Optimizer Comparison ReferenceMethodUpdate LogicKey PropertySGD$w = w - \eta \cdot g$Baseline; simple but high variance.Momentum$v = \beta v + g$  $w = w - \eta v$Dampens oscillations by using velocity.AdaGrad$G = G + g^2$  $w = w - \frac{\eta}{\sqrt{G + \epsilon}} \cdot g$Per-parameter LR; good for sparse data but eventually freezes.RMSprop$E[g^2] = \rho E[g^2] + (1-\rho)g^2$  $w = w - \frac{\eta}{\sqrt{E[g^2] + \epsilon}} \cdot g$Uses decaying memory to fix the AdaGrad freezing problem.Adam$m = \beta_1 m + (1-\beta_1)g$  $v = \beta_2 v + (1-\beta_2)g^2$  $w = w - \eta \frac{\hat{m}}{\sqrt{\hat{v} + \epsilon}}$Combines Momentum and RMSprop with Bias Correction.
+Method,Update Logic,Key Property
+SGD,w=w−η⋅g,Baseline; simple but high variance.
+Momentum,v=βv+g  w=w−ηv,Dampens oscillations by using velocity.
+AdaGrad,G=G+g2  w=w−G+ϵ​η​⋅g,Per-parameter LR; eventually freezes.
+RMSprop,E[g2]=ρE[g2]+(1−ρ)g2  w=w−E[g2]+ϵ​η​⋅g,Decaying memory; fixes AdaGrad freeze.
+Adam,m=β1​m+(1−β1​)g  v=β2​v+(1−β2​)g2  w=w−ηv^+ϵ​m^​,Momentum + RMSprop + Bias Correction.
 
 ---
