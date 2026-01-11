@@ -1213,6 +1213,3 @@ optimizer = tf.keras.optimizers.Adam(clipnorm=1.0)
 | Generalization matters most | SGD + Momentum or AdamW |
 
 ---
-
-
----
