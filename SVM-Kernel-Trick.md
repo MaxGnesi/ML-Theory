@@ -13,7 +13,7 @@
 
 ---
 
-## 1. Introduction: The Big Picture {#introduction}
+## 1. Introduction: The Big Picture 
 
 ### What Problem Are We Solving?
 
@@ -65,7 +65,7 @@ Not for practical use, but for:
 
 ---
 
-## 2. From Linear Classifiers to SVMs {#linear-to-svm}
+## 2. From Linear Classifiers to SVMs 
 
 ### Step 1: The Linear Classifier
 
@@ -189,7 +189,7 @@ This is where the magic happens →
 
 ---
 
-## 3. The Kernel Trick {#kernel-trick}
+## 3. The Kernel Trick 
 
 ### The Core Idea
 
@@ -376,7 +376,7 @@ K = [[1.000, 0.607, 0.011],
 
 ---
 
-## 4. The SVM Optimization Problem {#svm-optimization}
+## 4. The SVM Optimization Problem 
 
 ### From Primal to Dual: The Journey
 
@@ -580,7 +580,7 @@ else:        predict class -1
 
 ---
 
-## 5. Support Vectors: Where They Come From {#support-vectors}
+## 5. Support Vectors: Where They Come From 
 
 ### What Are Support Vectors?
 
@@ -692,7 +692,7 @@ f(x) = α₃·y₃·K(x₃,x) + α₆·y₆·K(x₆,x) + ... + α₉₉₈·y₉
 
 ---
 
-## 6. The Three Fundamental Theorems {#three-theorems}
+## 6. The Three Fundamental Theorems 
 
 ### Theorem 1: Mercer's Theorem
 
@@ -860,7 +860,7 @@ Get α's, compute predictions
 
 ---
 
-## 7. Scaling Limitations {#scaling-issues}
+## 7. Scaling Limitations 
 
 ### The Kernel Matrix Problem
 
@@ -992,7 +992,7 @@ This O(n²) scaling is why kernel SVMs dominated ML from 1995-2010 but are rarel
 
 ---
 
-## 8. Practical Points {#practical-points}
+## 8. Practical Points 
 
 ### Hyperparameter Intuition: C and γ
 
@@ -1057,7 +1057,7 @@ SVMs are inherently binary. Two standard extensions:
 
 ---
 
-## 9. Summary {#summary}
+## 9. Summary 
 
 ### The Journey
 
