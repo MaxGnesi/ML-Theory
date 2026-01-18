@@ -904,6 +904,51 @@ Memory required: 10B × 8 bytes = 80 GB
 
 Note: The number of features (d) affects only the time to compute each kernel entry K(xᵢ, xⱼ), not the matrix dimensions.
 
+### How Features Enter the Kernel Calculation
+
+The features are used *inside* each kernel computation. Here's a concrete example:
+
+```python
+# Two samples, each with 4 features
+x₁ = [0.5, 1.2, 0.8, 2.1]   # Sample 1 (e.g., contract A)
+x₂ = [0.3, 1.5, 0.9, 1.8]   # Sample 2 (e.g., contract B)
+
+# ============================================
+# LINEAR KERNEL: K(x₁, x₂) = x₁ · x₂ (dot product)
+# ============================================
+# Uses ALL features in the dot product:
+
+K(x₁, x₂) = (0.5 × 0.3) + (1.2 × 1.5) + (0.8 × 0.9) + (2.1 × 1.8)
+          =    0.15     +    1.80     +    0.72     +    3.78
+          = 6.45
+
+# ============================================
+# RBF KERNEL: K(x₁, x₂) = exp(-γ ||x₁ - x₂||²)
+# ============================================
+# Step 1: Compute squared Euclidean distance using ALL features
+
+||x₁ - x₂||² = (0.5-0.3)² + (1.2-1.5)² + (0.8-0.9)² + (2.1-1.8)²
+             =   0.04     +   0.09     +   0.01     +   0.09
+             = 0.23
+
+# Step 2: Apply RBF formula (with γ = 1.0)
+K(x₁, x₂) = exp(-1.0 × 0.23) = exp(-0.23) = 0.795
+
+# ============================================
+# THE KEY INSIGHT
+# ============================================
+# - Features (4 values per sample) → used INSIDE kernel formula
+# - Kernel output → ONE scalar (0.795) measuring similarity
+# - Kernel matrix → n×n scalars (one per sample pair)
+#
+# With 1000 samples and 4 features:
+#   - Each K(xᵢ, xⱼ) uses 4 features to produce 1 number
+#   - Kernel matrix is 1000×1000 = 1M numbers
+#   - NOT 4×4 and NOT 4000×4000
+```
+
+More features means more work *per kernel entry*, but the matrix size depends only on sample count:
+
 ### Computational Complexity
 
 **Training time:**
@@ -992,3 +1037,5 @@ Polynomial: K(x,y) = (γ·x·y + r)^d
 ✓ **Why SVMs work** — maximum margin + kernel trick  
 ✓ **Why they don't scale** — O(n²) kernel matrix  
 ✓ **Foundation for Gaussian Processes** — where kernels remain highly practical  
+
+---
