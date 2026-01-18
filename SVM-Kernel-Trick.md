@@ -8,7 +8,8 @@
 5. [Support Vectors: Where They Come From](#support-vectors)
 6. [The Three Fundamental Theorems](#three-theorems)
 7. [Scaling Limitations](#scaling-issues)
-8. [Summary](#summary)
+8. [Practical Points](#practical-points)
+9. [Summary](#summary)
 
 ---
 
@@ -991,7 +992,72 @@ This O(n²) scaling is why kernel SVMs dominated ML from 1995-2010 but are rarel
 
 ---
 
-## 8. Summary {#summary}
+## 8. Practical Points {#practical-points}
+
+### Hyperparameter Intuition: C and γ
+
+```python
+# C: Trade-off between margin size and errors
+C = 0.01   → Large margin, tolerates misclassifications (underfit risk)
+C = 1.0    → Balanced
+C = 100    → Tight fit, penalizes every error (overfit risk)
+
+# γ (RBF kernel): Controls "reach" of each training point
+γ = 0.001  → Each point influences large region → smooth boundary (underfit)
+γ = 1.0    → Balanced
+γ = 100    → Each point influences tiny region → wiggly boundary (overfit)
+```
+
+Rule of thumb: Start with C=1, γ=1/n_features, then grid search.
+
+### Computing the Bias Term b
+
+After optimization yields α*, compute b from any support vector on the margin (0 < αᵢ < C):
+
+```python
+# For a support vector xₛ with 0 < αₛ < C:
+b = yₛ - Σᵢ αᵢ yᵢ K(xᵢ, xₛ)
+
+# In practice: average over all such support vectors for numerical stability
+```
+
+### Multi-class Classification
+
+SVMs are inherently binary. Two standard extensions:
+
+```python
+# One-vs-Rest (OvR): K classes → K binary classifiers
+# - Train class k vs "all others" for each k
+# - Predict: class with highest decision value
+
+# One-vs-One (OvO): K classes → K(K-1)/2 binary classifiers  
+# - Train every pair of classes
+# - Predict: majority vote
+
+# sklearn default: OvO (works better in practice for SVMs)
+```
+
+### Kernel Selection
+
+```python
+# Linear kernel: K(x,y) = x·y
+# → Try first when n_features >> n_samples (text, genomics)
+# → Fast, interpretable
+
+# RBF kernel: K(x,y) = exp(-γ||x-y||²)  
+# → Default choice for most problems
+# → Works when no prior knowledge about data structure
+
+# Polynomial kernel: K(x,y) = (γ·x·y + r)^d
+# → When feature interactions matter at known degree
+# → NLP, some image tasks
+
+# Start with RBF. If too slow or overfitting, try linear.
+```
+
+---
+
+## 9. Summary {#summary}
 
 ### The Journey
 
