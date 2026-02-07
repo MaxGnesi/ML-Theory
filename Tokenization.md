@@ -38,6 +38,9 @@ Code examples you can run
 URL: https://web.stanford.edu/class/cs224n/slides/cs224n-2023-lecture05-rnnlm.pdf
 Why it's great:
 
+
+https://jalammar.github.io/illustrated-transformer/
+
 https://www.youtube.com/watch?app=desktop&v=eMlx5fFNoYc
 https://poloclub.github.io/transformer-explainer/
 https://github.com/gordicaleksa/pytorch-original-transformer/blob/main/The%20Annotated%20Transformer%20%2B%2B.ipynb
